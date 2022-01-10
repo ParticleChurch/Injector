@@ -42,7 +42,20 @@ public slots:
 			cpr::Url{ "https://www.particle.church" }
 		);
 
-		emit this->setText(response.text);
+		if (response.error.code == cpr::ErrorCode::OK)
+		{
+			emit this->setText(response.text);
+		}
+		else
+		{
+			emit this->setText(
+				"ERROR [" +
+				std::to_string((int)response.error.code) +
+				"]: " +
+				response.error.message
+			);
+		}
+
 
 		emit this->finished();
     }
