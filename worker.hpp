@@ -38,11 +38,15 @@ public:
 public slots:
     void work()
     {
+		//*
 		cpr::Response response = cpr::Get(
 			cpr::Url{ "https://www.particle.church" }
 		);
 
 		emit this->setText(response.text);
+		//*/
+
+		//emit this->setText("RUNNING");
 
 		emit this->finished();
     }

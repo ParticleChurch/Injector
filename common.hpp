@@ -1,5 +1,7 @@
 #pragma once
 
+#define CURL_STATICLIB
+
 #include <cpr/cpr.h>
 
 #include <QtCore>
