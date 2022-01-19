@@ -1,5 +1,6 @@
 #pragma once
 #include "common.hpp"
+#include "injector.hpp"
 
 class Worker : public QObject
 {
@@ -35,28 +36,32 @@ public:
 		this->thread->wait();
 	}
 
+
+
 public slots:
     void work()
     {
 		cpr::Response response = cpr::Get(
-			cpr::Url{ "https://www.particle.church" }
+			cpr::Url{ "https://api.particle.church/dll/" }
 		);
 
-		if (response.error.code == cpr::ErrorCode::OK)
-		{
-			emit this->setText(response.text);
-		}
-		else
-		{
-			emit this->setText(
-				"ERROR [" +
-				std::to_string((int)response.error.code) +
-				"]: " +
-				response.error.message
-			);
+		if (response.error.code != cpr::ErrorCode::OK) {
+			MessageBox(0, L"Failed to download.", L"Injection Failed", MB_OK);
+			std::exit(0);
 		}
 
+		char* dll = response.text.data();
+		size_t dllSize = response.text.size();
 
+		Utils::mapXOR((unsigned char*)dll, dllSize);
+
+		Injector injector{};
+		injector.openCSGO();
+
+
+		injector.inject(dll, dllSize);
+
+		std::exit(0);
 		emit this->finished();
     }
 
