@@ -21,38 +21,60 @@
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
+    <Filter Include="Resource Files\OpenSans">
+      <UniqueIdentifier>{e57d2972-6dba-46c8-a716-4a79c2fa37a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stolen_injector_lmao.cpp">
+    <ClCompile Include="src\stolen_injector_lmao.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="main_window.hpp">
+    <ClInclude Include="src\injector.hpp">
       <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="worker.hpp">
+    </ClInclude>
+    <ClInclude Include="src\stolen_injector_lmao.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\title_bar_theme.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\encryption.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\console.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\main_window.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="title_bar_theme.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="utils.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="injector.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stolen_injector_lmao.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <Font Include="resource\OpenSans\400.ttf">
+      <Filter>Resource Files\OpenSans</Filter>
+    </Font>
+    <Font Include="resource\OpenSans\600.ttf">
+      <Filter>Resource Files\OpenSans</Filter>
+    </Font>
+    <Font Include="resource\OpenSans\700.ttf">
+      <Filter>Resource Files\OpenSans</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="resource\fonts.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

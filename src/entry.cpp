@@ -1,4 +1,4 @@
-#include "common.hpp"
+#include <QtWidgets/QApplication>
 #include "main_window.hpp"
 
 int main(int argc, char** argv)
@@ -7,11 +7,6 @@ int main(int argc, char** argv)
 
 	MainWindow mainWindow{};
 	mainWindow.show();
-
-	mainWindow.connect(
-		&app, SIGNAL(aboutToQuit()),
-		&mainWindow, SLOT(closed())
-	);
 
 	return app.exec();
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "common.hpp"
+#include <string>
 
 namespace Utils
 {
@@ -30,8 +30,6 @@ namespace Utils
 		};
 
 		for (size_t offset = 0; offset < dataSize; offset++)
-		{
 			data[offset] ^= bruh[offset % 256];
-		}
 	}
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "common.hpp"
+#include "utils.hpp"
 #include "stolen_injector_lmao.hpp"
 
 class Injector

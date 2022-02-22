@@ -11,14 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{98D789A4-9FB2-49D1-BBBF-0F440A8F6CE9}</ProjectGuid>
+    <ProjectGuid>{7639CE38-66FB-44D8-80AC-2B27D49DCD54}</ProjectGuid>
     <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">10.0.19041.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">10.0.19041.0</WindowsTargetPlatformVersion>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
-    <VcpkgTriplet Condition="'$(Platform)'=='Win32'">
-    </VcpkgTriplet>
-    <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows-static</VcpkgTriplet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="Configuration">
@@ -36,13 +33,13 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="QtSettings">
-    <QtInstall>6.2.2</QtInstall>
+    <QtInstall>6.2.3</QtInstall>
     <QtModules>
     </QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'" Label="QtSettings">
-    <QtInstall>6.2.2</QtInstall>
+    <QtInstall>6.2.3</QtInstall>
     <QtModules>
     </QtModules>
     <QtBuildConfig>release</QtBuildConfig>
@@ -65,30 +62,24 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Link>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>crypt32.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Link>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>crypt32.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>C:\Qt\qt-6.2.2-static\include\QtCore;C:\Qt\qt-6.2.2-static\include</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>crypt32.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>C:\Qt\qt-6.2.2-static\include\QtCore;C:\Qt\qt-6.2.2-static\include</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>crypt32.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="Configuration">
     <ClCompile>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -116,21 +107,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="stolen_injector_lmao.cpp" />
+    <ClCompile Include="src\console.cpp" />
+    <ClCompile Include="src\entry.cpp" />
+    <ClCompile Include="src\stolen_injector_lmao.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="main_window.hpp" />
+    <ClInclude Include="src\console.hpp" />
+    <ClInclude Include="src\encryption.hpp" />
+    <ClInclude Include="src\injector.hpp" />
+    <ClInclude Include="src\stolen_injector_lmao.hpp" />
+    <ClInclude Include="src\title_bar_theme.hpp" />
+    <ClInclude Include="src\utils.hpp" />
+    <QtMoc Include="src\main_window.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="worker.hpp" />
+    <Font Include="resource\OpenSans\400.ttf" />
+    <Font Include="resource\OpenSans\600.ttf" />
+    <Font Include="resource\OpenSans\700.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common.hpp" />
-    <ClInclude Include="injector.hpp" />
-    <ClInclude Include="stolen_injector_lmao.hpp" />
-    <ClInclude Include="title_bar_theme.hpp" />
-    <ClInclude Include="utils.hpp" />
+    <QtRcc Include="resource\fonts.qrc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
