@@ -73,8 +73,13 @@
     </Font>
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="resource\fonts.qrc">
+    <QtRcc Include="resource\resource.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resource\loading.gif">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

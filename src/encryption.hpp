@@ -99,21 +99,21 @@ namespace Encryption {
             case 'F': case 'f': return 15;
             }
         }
-    }
 
-    // hex digest given binary data
-    inline std::string hex(std::string data)
-    {
-        std::string hex;
-        hex.reserve(data.size() * 2);
-
-        for (const char& byte : data)
+        // hex digest given binary data
+        inline std::string hex(std::string data)
         {
-            hex += Util::BIN_TO_HEX_DIGIT(byte >> 4);
-            hex += Util::BIN_TO_HEX_DIGIT(byte & 0b1111);
-        }
+            std::string hex;
+            hex.reserve(data.size() * 2);
 
-        return hex;
+            for (const char& byte : data)
+            {
+                hex += Util::BIN_TO_HEX_DIGIT(byte >> 4);
+                hex += Util::BIN_TO_HEX_DIGIT(byte & 0b1111);
+            }
+
+            return hex;
+        }
     }
 
     // binary data given hex digest

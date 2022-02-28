@@ -10,6 +10,7 @@
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
+#include <QMovie>
 
 #include "title_bar_theme.hpp"
 #include "encryption.hpp"
@@ -68,6 +69,102 @@ Q_SIGNALS:
 	void hoverChanged();
 };
 
+class Button : public QPushButton {
+	QString text = "Click Me!";
+	std::unique_ptr<QMovie> movie;
+	std::unique_ptr<QLabel> movieContainer;
+	bool enabled = true;
+	bool loading = false;
+
+	void resizeMovie()
+	{
+		const auto w = this->width(), h = this->height();
+		const auto sz = min(w, h) * 0.8;
+		const auto left = (w - sz) / 2, top = (h - sz) / 2;
+
+		this->movieContainer->setGeometry(left, top, sz, sz);
+		this->movie->setScaledSize(this->movieContainer->size());
+	}
+
+public:
+	Button(QWidget* parent = nullptr) : QPushButton(parent)
+	{
+
+		this->movieContainer = std::make_unique<QLabel>(this);
+		this->movieContainer->setAttribute(Qt::WA_TranslucentBackground);
+		this->movieContainer->setGeometry(0, 0, this->width(), this->height());
+
+		this->movie = std::make_unique<QMovie>(":/img/loading.gif");
+		this->resizeMovie();
+		this->movie->start();
+
+		this->recalculateStyle();
+
+		this->connect(new HoverWatcher(this), &HoverWatcher::hoverChanged, this, &Button::recalculateStyle);
+
+		if (parent) parent->installEventFilter(this);
+	}
+
+	void recalculateStyle()
+	{
+		QString opacity = (this->enabled && this->underMouse()) ? "0.8" : "1";
+
+		this->setStyleSheet(
+			"border-radius: 5px;"
+			"color: rgba(255, 255, 255, " + opacity + ");"
+			"font-size: 16px;"
+			"background-color: rgba(58, 121, 199, " + opacity + ");"
+		);
+
+		this->setCursor(this->enabled ? QCursor(Qt::PointingHandCursor) : QCursor());
+	}
+
+	void setText(const QString& text)
+	{
+		this->text = text;
+
+		if (!this->loading) QPushButton::setText(this->text);
+	}
+
+	virtual bool eventFilter(QObject* obj, QEvent* event) override
+	{
+		switch (event->type())
+		{
+		case QEvent::Resize:
+			this->resizeMovie();
+			break;
+		}
+
+		return false;
+	}
+
+	void enable()
+	{
+		this->enabled = true;
+		this->recalculateStyle();
+	}
+
+	void disable()
+	{
+		this->enabled = false;
+		this->recalculateStyle();
+	}
+
+	void startLoading()
+	{
+		this->loading = true;
+		this->movieContainer->setMovie(this->movie.get());
+		QPushButton::setText("");
+	}
+
+	void stopLoading()
+	{
+		this->loading = false;
+		this->movieContainer->setMovie(nullptr);
+		QPushButton::setText(this->text);
+	}
+};
+
 class MainWindow : public QWidget
 {
 	Q_OBJECT;
@@ -75,8 +172,8 @@ class MainWindow : public QWidget
 private:
 	std::unique_ptr<QLineEdit> email;
 	std::unique_ptr<QLineEdit> password;
-	std::unique_ptr<QPushButton> playAnon;
-	std::unique_ptr<QPushButton> playAuth;
+	std::unique_ptr<Button> playAnon;
+	std::unique_ptr<Button> playAuth;
 
 	std::unique_ptr<QFont> OpenSans400;
 	std::unique_ptr<QFont> OpenSans600;
@@ -97,8 +194,8 @@ public:
 		*/
 		this->email = std::make_unique<QLineEdit>(this);
 		this->password = std::make_unique<QLineEdit>(this);
-		this->playAnon = std::make_unique<QPushButton>(this);
-		this->playAuth = std::make_unique<QPushButton>(this);
+		this->playAnon = std::make_unique<Button>(this);
+		this->playAuth = std::make_unique<Button>(this);
 
 		/*
 			children styles
@@ -145,15 +242,6 @@ public:
 		this->playAuth->setFont(*this->OpenSans400);
 		this->playAnon->setFont(*this->OpenSans400);
 
-		this->playAuth->setCursor(QCursor(Qt::PointingHandCursor));
-		this->playAnon->setCursor(QCursor(Qt::PointingHandCursor));
-
-		this->styleButton(this->playAuth.get());
-		this->styleButton(this->playAnon.get());
-		
-		this->connect(new HoverWatcher(this->playAuth.get()), &HoverWatcher::hoverChanged, this, &MainWindow::recalculateHover);
-		this->connect(new HoverWatcher(this->playAnon.get()), &HoverWatcher::hoverChanged, this, &MainWindow::recalculateHover);
-
 		this->loadLoginInfo();
 		this->connect(this->playAuth.get(), &QPushButton::clicked, this, &MainWindow::onLogin);
 
@@ -169,19 +257,19 @@ private:
 	void loadFonts()
 	{
 		{
-			int id = QFontDatabase::addApplicationFont(":/fonts/OpenSans/400.otf");
+			int id = QFontDatabase::addApplicationFont(":/font/OpenSans/400.otf");
 			auto family = QFontDatabase::applicationFontFamilies(id).at(0);
 			this->OpenSans400 = std::make_unique<QFont>(family);
 			this->OpenSans400->setStyleStrategy(QFont::PreferAntialias);
 		}
 		{
-			int id = QFontDatabase::addApplicationFont(":/fonts/OpenSans/600.otf");
+			int id = QFontDatabase::addApplicationFont(":/font/OpenSans/600.otf");
 			auto family = QFontDatabase::applicationFontFamilies(id).at(0);
 			this->OpenSans600 = std::make_unique<QFont>(family);
 			this->OpenSans600->setStyleStrategy(QFont::PreferAntialias);
 		}
 		{
-			int id = QFontDatabase::addApplicationFont(":/fonts/OpenSans/700.otf");
+			int id = QFontDatabase::addApplicationFont(":/font/OpenSans/700.otf");
 			auto family = QFontDatabase::applicationFontFamilies(id).at(0);
 			this->OpenSans700 = std::make_unique<QFont>(family);
 			this->OpenSans700->setStyleStrategy(QFont::PreferAntialias);
@@ -227,27 +315,20 @@ private:
 
 	void saveLoginInfo()
 	{
+		using Encryption::Util::hex, Encryption::encrypt;
+
 		std::string temp = std::getenv("TEMP");
 		std::ofstream file(temp + "\\particle.church.login", std::ios::binary);
 
 		if (!file || !file.is_open()) return;
 
-		std::string data = Encryption::hex(this->email->text().toStdString()) + "," + Encryption::hex(this->password->text().toStdString());
-		std::string encrypted = Encryption::encrypt(data);
-		file.write(encrypted.data(), encrypted.size());
+		std::string email = this->email->text().toStdString();
+		std::string password = this->password->text().toStdString();
+
+		std::string encryptedData = encrypt(hex(email) + "," + hex(password));
+
+		file.write(encryptedData.data(), encryptedData.size());
 		file.close();
-	}
-
-	void styleButton(QPushButton* q)
-	{
-		QString opacity = q->underMouse() ? "0.8" : "1";
-
-		q->setStyleSheet(
-			"border-radius: 5px;"
-			"color: rgba(255, 255, 255, " + opacity + ");"
-			"font-size: 16px;"
-			"background-color: rgba(58, 121, 199, " + opacity + ");"
-		);
 	}
 
 	void stylePlaceholder(QLineEdit* q)
@@ -286,14 +367,12 @@ public slots:
 		this->stylePlaceholder(this->password.get());
 	}
 
-	void recalculateHover()
-	{
-		this->styleButton(this->playAuth.get());
-		this->styleButton(this->playAnon.get());
-	}
-
 	void onLogin()
 	{
+		this->playAnon->disable();
+		this->playAuth->disable();
+		this->playAuth->startLoading();
+		
 		this->saveLoginInfo();
 	}
 };
