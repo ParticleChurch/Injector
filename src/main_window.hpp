@@ -78,12 +78,11 @@ class Button : public QPushButton {
 
 	void resizeMovie()
 	{
-		const auto w = this->width(), h = this->height();
-		const auto sz = min(w, h) * 0.8;
-		const auto left = (w - sz) / 2, top = (h - sz) / 2;
+		const int w = this->width(), h = this->height();
+		const int sz = min(w, h) * 0.7;
 
-		this->movieContainer->setGeometry(left, top, sz, sz);
-		this->movie->setScaledSize(this->movieContainer->size());
+		this->movieContainer->setGeometry(0, 0, w, h);
+		this->movie->setScaledSize({ sz, sz });
 	}
 
 public:
@@ -92,6 +91,7 @@ public:
 
 		this->movieContainer = std::make_unique<QLabel>(this);
 		this->movieContainer->setAttribute(Qt::WA_TranslucentBackground);
+		this->movieContainer->setAlignment(Qt::AlignCenter);
 		this->movieContainer->setGeometry(0, 0, this->width(), this->height());
 
 		this->movie = std::make_unique<QMovie>(":/img/loading.gif");
@@ -196,6 +196,7 @@ public:
 		this->password = std::make_unique<QLineEdit>(this);
 		this->playAnon = std::make_unique<Button>(this);
 		this->playAuth = std::make_unique<Button>(this);
+		this->playAuth->startLoading();
 
 		/*
 			children styles
@@ -357,6 +358,11 @@ private:
 		QWidget::mousePressEvent(evt);
 	}
 
+	void doLogin()
+	{
+
+	}
+
 signals:
 
 public slots:
@@ -372,7 +378,16 @@ public slots:
 		this->playAnon->disable();
 		this->playAuth->disable();
 		this->playAuth->startLoading();
-		
+
 		this->saveLoginInfo();
+
+
+	}
+
+	void onLoginResult(bool success, std::string sessionId)
+	{
+		this->playAuth->stopLoading();
+		this->playAnon->enable();
+		this->playAuth->enable();
 	}
 };
