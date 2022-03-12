@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <cpr/cpr.h>
+#include "json.hpp"
 
 namespace HTTP {
 	constexpr const char* ROOT = "https://api.particle.church/";
