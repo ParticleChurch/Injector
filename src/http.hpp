@@ -1,9 +1,11 @@
 #pragma once
 
+#define CURL_STATICLIB
+#include <cpr/cpr.h>
+
 #include <string>
 #include <vector>
 #include <map>
-#include <cpr/cpr.h>
 #include "json.hpp"
 
 namespace HTTP {
