@@ -49,10 +49,13 @@
     <ClInclude Include="src\console.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="http.hpp">
+    <ClInclude Include="src\json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\json.hpp">
+    <ClInclude Include="src\http.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base64.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
