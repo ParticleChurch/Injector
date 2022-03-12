@@ -4,7 +4,6 @@
 #include <vector>
 #include <map>
 #include <cpr/cpr.h>
-#include "rapidjson/rapidjson.h"
 
 namespace HTTP {
 	constexpr const char* ROOT = "https://api.particle.church/";
@@ -160,7 +159,6 @@ namespace HTTP {
 		case Method::POST:
 		{
 			session.SetHeader({ "Content-Type", "application/json" });
-
 		}
 		}
 	}
