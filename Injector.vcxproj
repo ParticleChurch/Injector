@@ -109,13 +109,12 @@
   <ItemGroup>
     <ClCompile Include="src\console.cpp" />
     <ClCompile Include="src\entry.cpp" />
-    <ClCompile Include="src\stolen_injector_lmao.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\console.hpp" />
     <ClInclude Include="src\encryption.hpp" />
     <ClInclude Include="src\injector.hpp" />
-    <ClInclude Include="src\stolen_injector_lmao.hpp" />
+    <QtMoc Include="src\login_worker.hpp" />
     <ClInclude Include="src\title_bar_theme.hpp" />
     <ClInclude Include="src\utils.hpp" />
     <QtMoc Include="src\main_window.hpp" />

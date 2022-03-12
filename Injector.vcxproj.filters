@@ -29,18 +29,12 @@
     <ClCompile Include="src\entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\stolen_injector_lmao.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\injector.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\stolen_injector_lmao.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\title_bar_theme.hpp">
@@ -58,6 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\main_window.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\login_worker.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
