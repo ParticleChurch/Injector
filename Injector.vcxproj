@@ -111,6 +111,7 @@
     <ClCompile Include="src\entry.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="http.hpp" />
     <ClInclude Include="src\console.hpp" />
     <ClInclude Include="src\encryption.hpp" />
     <ClInclude Include="src\injector.hpp" />
