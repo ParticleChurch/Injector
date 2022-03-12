@@ -2,21 +2,20 @@
 #include <QtCore>
 #include "http.hpp"
 
-class LoginWorker : public QObject
+class LoginWorkerThread : public QThread
 {
     Q_OBJECT;
 
     std::string email, password;
 
 public:
-    LoginWorker(QObject* parent, std::string email, std::string password) : QObject(parent)
+    LoginWorkerThread(QObject* parent, const std::string& email, const std::string& password) : QThread(parent)
     {
         this->email = email;
         this->password = password;
     }
 
-public slots:
-    void start()
+    void run() override
     {
         auto response = HTTP::post(
             "sessions",

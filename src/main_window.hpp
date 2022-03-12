@@ -15,6 +15,8 @@
 #include "title_bar_theme.hpp"
 #include "encryption.hpp"
 
+#include "login_worker.hpp"
+
 class FocusWatcher : public QObject
 {
 	Q_OBJECT
@@ -79,7 +81,7 @@ class Button : public QPushButton {
 	void resizeMovie()
 	{
 		const int w = this->width(), h = this->height();
-		const int sz = min(w, h) * 0.7;
+		const int sz = std::min(w, h) * 0.7;
 
 		this->movieContainer->setGeometry(0, 0, w, h);
 		this->movie->setScaledSize({ sz, sz });
@@ -358,11 +360,6 @@ private:
 		QWidget::mousePressEvent(evt);
 	}
 
-	void doLogin()
-	{
-
-	}
-
 signals:
 
 public slots:
@@ -381,7 +378,10 @@ public slots:
 
 		this->saveLoginInfo();
 
-
+		LoginWorkerThread* t = new LoginWorkerThread(this, this->email->text().toStdString(), this->password->text().toStdString());
+		this->connect(t, &LoginWorkerThread::resultReady, this, &MainWindow::onLoginResult);
+		this->connect(t, &LoginWorkerThread::finished, t, &QObject::deleteLater);
+		t->start();
 	}
 
 	void onLoginResult(bool success, std::string sessionId)
