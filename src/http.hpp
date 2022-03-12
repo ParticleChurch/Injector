@@ -164,9 +164,6 @@ namespace HTTP {
 
 		session.SetBody(data.dump());
 
-		qDebug() << "POSTING TO:" << urlFromPath(path).c_str();
-		qDebug() << "WITH BODY:" << data.dump().c_str();
-
 		return session.Post();
 	}
 }

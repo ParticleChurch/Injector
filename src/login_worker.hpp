@@ -21,7 +21,8 @@ public:
             "sessions",
             {
                 { "email", this->email },
-                { "password", this->password }
+                { "password", this->password },
+                { "platform", "injector" },
             }
         );
 
