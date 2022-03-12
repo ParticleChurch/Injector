@@ -135,13 +135,13 @@ namespace HTTP {
 		return { (API / path).render() };
 	}
 
-	cpr::Response get(std::string path, Dictionary data = {}, Dictionary headers = {})
+	inline cpr::Response get(std::string path, Dictionary data = {}, Dictionary headers = {})
 	{
 		cpr::Session session;
 		session.SetUrl(urlFromPath(path));
 
 		for (const auto& [key, value] : headers)
-			session.SetHeader(cpr::Header{ key, value });
+			session.SetHeader(cpr::Header{ { key, value } });
 
 		cpr::Parameters params;
 
@@ -153,16 +153,19 @@ namespace HTTP {
 		return session.Get();
 	}
 
-	cpr::Response post(std::string path, JSON::json data = "{}", Dictionary headers = {})
+	inline cpr::Response post(std::string path, JSON::json data = "{}", Dictionary headers = {})
 	{
 		cpr::Session session;
 		session.SetUrl(urlFromPath(path));
 
 		headers["Content-Type"] = "application/json";
 		for (const auto& [key, value] : headers)
-			session.SetHeader(cpr::Header{ key, value });
+			session.SetHeader(cpr::Header{ { key, value } });
 
 		session.SetBody(data.dump());
+
+		qDebug() << "POSTING TO:" << urlFromPath(path).c_str();
+		qDebug() << "WITH BODY:" << data.dump().c_str();
 
 		return session.Post();
 	}

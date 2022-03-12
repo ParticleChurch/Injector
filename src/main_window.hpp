@@ -100,14 +100,14 @@ public:
 		this->resizeMovie();
 		this->movie->start();
 
-		this->recalculateStyle();
+		this->restyle();
 
-		this->connect(new HoverWatcher(this), &HoverWatcher::hoverChanged, this, &Button::recalculateStyle);
+		this->connect(new HoverWatcher(this), &HoverWatcher::hoverChanged, this, &Button::restyle);
 
 		if (parent) parent->installEventFilter(this);
 	}
 
-	void recalculateStyle()
+	void restyle()
 	{
 		QString opacity = (this->enabled && this->underMouse()) ? "0.8" : "1";
 
@@ -143,13 +143,13 @@ public:
 	void enable()
 	{
 		this->enabled = true;
-		this->recalculateStyle();
+		this->restyle();
 	}
 
 	void disable()
 	{
 		this->enabled = false;
-		this->recalculateStyle();
+		this->restyle();
 	}
 
 	void startLoading()
@@ -167,13 +167,51 @@ public:
 	}
 };
 
+class Input : public QLineEdit {
+	bool invalid = false;
+
+public:
+	Input(QWidget* parent = nullptr) : QLineEdit(parent)
+	{
+		this->connect(new FocusWatcher(this), &FocusWatcher::focusChanged, this, &Input::restyle);
+		this->connect(this, &Input::textChanged, this, &Input::restyle);
+	}
+
+	void restyle()
+	{
+		bool empty = this->text() == "";
+		bool focus = this->hasFocus();
+
+		QString opacity = "1";
+		if (empty) opacity = focus ? "0" : "0.6";
+
+		QString border = this->invalid ? "2px solid rgb(166, 61, 61)" : "none";
+		QString padding = this->invalid ? "8px" : "10px";
+
+		this->setStyleSheet(
+			"background-color: rgb(26, 29, 32);"
+			"border-radius: 5px; "
+			"padding: " + padding + ";"
+			"font-size: 16px;"
+			"color: rgba(255, 255, 255, " + opacity + ");"
+			"border: " + border + ";"
+		);
+	}
+
+	void setInvalid(bool invalid)
+	{
+		this->invalid = invalid;
+		this->restyle();
+	}
+};
+
 class MainWindow : public QWidget
 {
 	Q_OBJECT;
 
 private:
-	std::unique_ptr<QLineEdit> email;
-	std::unique_ptr<QLineEdit> password;
+	std::unique_ptr<Input> email;
+	std::unique_ptr<Input> password;
 	std::unique_ptr<Button> playAnon;
 	std::unique_ptr<Button> playAuth;
 
@@ -194,11 +232,10 @@ public:
 		/*
 			children
 		*/
-		this->email = std::make_unique<QLineEdit>(this);
-		this->password = std::make_unique<QLineEdit>(this);
+		this->email = std::make_unique<Input>(this);
+		this->password = std::make_unique<Input>(this);
 		this->playAnon = std::make_unique<Button>(this);
 		this->playAuth = std::make_unique<Button>(this);
-		this->playAuth->startLoading();
 
 		/*
 			children styles
@@ -211,8 +248,8 @@ public:
 		this->email->setGeometry(24, 53, 292, 42);
 		this->password->setGeometry(24, 148, 292, 42);
 
-		this->stylePlaceholder(this->email.get());
-		this->stylePlaceholder(this->password.get());
+		this->email->restyle();
+		this->password->restyle();
 
 		this->email->setFont(*this->OpenSans600);
 		this->password->setFont(*this->OpenSans600);
@@ -249,10 +286,6 @@ public:
 		this->connect(this->playAuth.get(), &QPushButton::clicked, this, &MainWindow::onLogin);
 
 		// fix placeholder garbage
-		this->connect(new FocusWatcher(this->email.get()), &FocusWatcher::focusChanged, this, &MainWindow::recalculatePlaceholders);
-		this->connect(new FocusWatcher(this->password.get()), &FocusWatcher::focusChanged, this, &MainWindow::recalculatePlaceholders);
-		this->connect(this->email.get(), &QLineEdit::textChanged, this, &MainWindow::recalculatePlaceholders);
-		this->connect(this->password.get(), &QLineEdit::textChanged, this, &MainWindow::recalculatePlaceholders);
 		this->setFocus();
 	}
 
@@ -306,8 +339,8 @@ private:
 
 			this->email->setText(email.c_str());
 			this->password->setText(password.c_str());
-			this->stylePlaceholder(this->email.get());
-			this->stylePlaceholder(this->password.get());
+			this->email->restyle();
+			this->password->restyle();
 		}
 		catch (...) {
 			return file.close();
@@ -334,24 +367,6 @@ private:
 		file.close();
 	}
 
-	void stylePlaceholder(QLineEdit* q)
-	{
-		bool empty = q->text() == "";
-		bool focus = q->hasFocus();
-
-		QString opacity = "1";
-		if (empty)
-			opacity = focus ? "0" : "0.6";
-		
-		q->setStyleSheet(
-			"background-color: rgb(26, 29, 32);"
-			"border-radius: 5px; "
-			"padding: 10px;"
-			"font-size: 16px;"
-			"color: rgba(255, 255, 255, " + opacity + ");"
-		);
-	}
-
 	virtual void mousePressEvent(QMouseEvent* evt)
 	{
 		this->email->clearFocus();
@@ -366,8 +381,8 @@ public slots:
 
 	void recalculatePlaceholders()
 	{
-		this->stylePlaceholder(this->email.get());
-		this->stylePlaceholder(this->password.get());
+		this->email->restyle();
+		this->password->restyle();
 	}
 
 	void onLogin()
@@ -384,10 +399,29 @@ public slots:
 		t->start();
 	}
 
-	void onLoginResult(bool success, std::string sessionId)
+	void onLoginResult(bool success, std::string error_or_sessionId, int statusCode_or_userId)
 	{
 		this->playAuth->stopLoading();
 		this->playAnon->enable();
 		this->playAuth->enable();
+
+		if (!success)
+		{
+			const std::string& error = error_or_sessionId;
+			const int& statusCode = statusCode_or_userId;
+
+			this->email->setInvalid(statusCode == 400 || statusCode == 404);
+			this->password->setInvalid(statusCode == 400 || statusCode == 401);
+		} 
+		else
+		{
+			const std::string& sessionId = error_or_sessionId;
+			const int& userId = statusCode_or_userId;
+
+			this->email->setInvalid(false);
+			this->password->setInvalid(false);
+
+			MessageBoxA(MB_OK, ("LOGGED IN AS USER " + std::to_string(userId)).c_str(), NULL, NULL);
+		}
 	}
 };

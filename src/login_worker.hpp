@@ -27,27 +27,27 @@ public:
 
         if (response.error)
         {
-            return emit resultReady(false, "Unknown Error: " + response.error.message, "");
+            return emit resultReady(false, "Unknown Error: " + response.error.message, response.status_code);
         }
 
         if (response.status_code == 200)
         {
-            HTTP::JSON::json body = response.text;
-            if (body.contains("session_id"))
+            HTTP::JSON::json body = HTTP::JSON::json::parse(response.text);
+            if (body.contains("session_id") && body.contains("user_id"))
             {
-                return emit resultReady(true, "success", body["session_id"]);
+                return emit resultReady(true, body["session_id"], body["user_id"]);
             }
             else
             {
-                return emit resultReady(false, "Server response did not contain a session id: " + response.text, "");
+                return emit resultReady(false, "Invalid Server Response (missing required fields): " + response.text, response.status_code);
             }
         }
         else
         {
-            return emit resultReady(false, "Request failed with static code: " + std::to_string(response.status_code), "");
+            return emit resultReady(false, "Bad Status Code: " + std::to_string(response.status_code), response.status_code);
         }
     }
 
 signals:
-    void resultReady(bool success, std::string error, std::string sessionId);
+    void resultReady(bool success, std::string error_or_sessionId, int statusCode_or_userId);
 };
