@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <regex>
 #include <cpr/cpr.h>
+#include "rapidjson/rapidjson.h"
 
 namespace HTTP {
 	constexpr const char* ROOT = "https://api.particle.church/";

@@ -67,12 +67,18 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>crypt32.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)/rapidjson/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>crypt32.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)/rapidjson/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemDefinitionGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
@@ -112,6 +118,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="http.hpp" />
+    <ClInclude Include="rapidjson\include\rapidjson\allocators.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\cursorstreamwrapper.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\document.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\encodedstream.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\encodings.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\filereadstream.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\filewritestream.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\fwd.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\istreamwrapper.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\memorybuffer.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\memorystream.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\ostreamwrapper.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\pointer.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\prettywriter.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\rapidjson.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\reader.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\schema.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\stream.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\stringbuffer.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\uri.h" />
+    <ClInclude Include="rapidjson\include\rapidjson\writer.h" />
     <ClInclude Include="src\console.hpp" />
     <ClInclude Include="src\encryption.hpp" />
     <ClInclude Include="src\injector.hpp" />
