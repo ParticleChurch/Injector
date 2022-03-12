@@ -7,6 +7,7 @@
 #include "json.hpp"
 
 namespace HTTP {
+	namespace JSON = nlohmann;
 	constexpr const char* ROOT = "https://api.particle.church/";
 
 	enum class Protocol
@@ -125,11 +126,6 @@ namespace HTTP {
 		}
 	};
 
-	enum class Method {
-		GET,
-		POST,
-	};
-
 	inline cpr::Url urlFromPath(const std::string& path = "")
 	{
 		static URL API(Protocol::HTTPS, "api.particle.church");
@@ -137,34 +133,35 @@ namespace HTTP {
 		return { (API / path).render() };
 	}
 
-	inline cpr::Response request(const Method& method, const std::string& path, Dictionary data = {}, Dictionary headers = {})
+	cpr::Response get(std::string path, Dictionary data = {}, Dictionary headers = {})
 	{
 		cpr::Session session;
 		session.SetUrl(urlFromPath(path));
 
 		for (const auto& [key, value] : headers)
 			session.SetHeader(cpr::Header{ key, value });
-		
-		switch (method)
-		{
-		case Method::GET:
-		{
-			cpr::Parameters params;
-			
-			for (const auto& [key, value] : data)
-				params.Add(cpr::Parameter{ key, value });
-			
-			session.SetParameters(params);
-			return session.Get();
-		}
-		case Method::POST:
-		{
-			session.SetHeader({ "Content-Type", "application/json" });
-		}
-		}
+
+		cpr::Parameters params;
+
+		for (const auto& [key, value] : data)
+			params.Add(cpr::Parameter{ key, value });
+
+		session.SetParameters(params);
+
+		return session.Get();
 	}
 
-	cpr::Response get(std::string path, Dictionary parameters, Dictionary headers = {})
+	cpr::Response post(std::string path, JSON::json data = "{}", Dictionary headers = {})
 	{
+		cpr::Session session;
+		session.SetUrl(urlFromPath(path));
+
+		headers["Content-Type"] = "application/json";
+		for (const auto& [key, value] : headers)
+			session.SetHeader(cpr::Header{ key, value });
+
+		session.SetBody(data.dump());
+
+		return session.Post();
 	}
 }
