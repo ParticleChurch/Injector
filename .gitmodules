@@ -1,0 +1,3 @@
+[submodule "external/ControlledManualMapper"]
+	path = external/ControlledManualMapper
+	url = https://github.com/ParticleChurch/ControlledManualMapper
