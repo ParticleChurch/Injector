@@ -17,6 +17,8 @@
 
 #include "login_worker.hpp"
 
+#include "controlled_manual_mapper.hpp"
+
 class FocusWatcher : public QObject
 {
 	Q_OBJECT
@@ -222,6 +224,8 @@ private:
 public:
 	explicit MainWindow(QWidget* parent = nullptr) : QWidget(parent)
 	{
+		ControlledManualMapper::function();
+
 		/*
 			window styles
 		*/

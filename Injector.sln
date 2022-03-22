@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Injector", "Injector.vcxproj", "{7639CE38-66FB-44D8-80AC-2B27D49DCD54}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9EB3FB36-0D86-4E91-88B1-D9B5AFDE2CDC} = {9EB3FB36-0D86-4E91-88B1-D9B5AFDE2CDC}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ControlledManualMapper", "external\ControlledManualMapper\ControlledManualMapper.vcxproj", "{9EB3FB36-0D86-4E91-88B1-D9B5AFDE2CDC}"
 EndProject
