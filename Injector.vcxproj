@@ -74,6 +74,14 @@
     <ClCompile>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>rmdir /Q /S $(SolutionDir)Release 2&gt; nul
+rmdir /Q /S $(SolutionDir)Debug 2&gt; nul
+rmdir /Q /S $(SolutionDir)x64 2&gt; nul</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Deleting QT build files</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
