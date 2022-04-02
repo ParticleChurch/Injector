@@ -73,7 +73,7 @@
       <AdditionalDependencies>ControlledManualMapper.lib;crypt32.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\ControlledManualMapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\ControlledManualMapper\include;C:\Qt\qt-6.2.3-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <PostBuildEvent>
@@ -91,9 +91,15 @@ rmdir /Q /S $(SolutionDir)x64 2&gt; nul</Command>
       <AdditionalDependencies>ControlledManualMapper.lib;crypt32.lib;%(AdditionalDependencies);$(Qt_LIBS_)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\ControlledManualMapper\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\ControlledManualMapper\include;C:\Qt\qt-6.2.3-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>rmdir /Q /S $(SolutionDir)Release 2&gt; nul
+rmdir /Q /S $(SolutionDir)Debug 2&gt; nul
+rmdir /Q /S $(SolutionDir)x64 2&gt; nul</Command>
+      <Message>Deleting QT build files</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
