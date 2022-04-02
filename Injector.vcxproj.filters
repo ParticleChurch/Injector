@@ -66,6 +66,9 @@
     <QtMoc Include="src\login_worker.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\auto_update_worker.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <Font Include="resource\OpenSans\400.ttf">

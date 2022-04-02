@@ -138,6 +138,7 @@ rmdir /Q /S $(SolutionDir)x64 2&gt; nul</Command>
     <ClCompile Include="src\entry.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="src\auto_update_worker.hpp" />
     <ClInclude Include="src\base64.hpp" />
     <ClInclude Include="src\console.hpp" />
     <ClInclude Include="src\encryption.hpp" />
