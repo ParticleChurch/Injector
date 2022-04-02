@@ -1,4 +1,5 @@
 #pragma once
+#include <regex>
 #include <filesystem>
 #include <fstream>
 namespace filesystem = std::filesystem;
@@ -11,7 +12,7 @@ namespace filesystem = std::filesystem;
 
 #include <Windows.h>
 
-#define VERSION "0.0.1"
+#define VERSION "0.9.0"
 
 class UpdateCheckWorker : public QThread
 {
@@ -62,7 +63,6 @@ public:
         }
         else
         {
-            qDebug() << response.text.c_str();
             errorMessage = "Failed to check for updates (got HTTP status code " + std::to_string(response.status_code) + ").";
             goto error;
         }
@@ -100,7 +100,14 @@ class UpdateWorker : public QThread
     HWND parentHandle = NULL;
 
     static std::string determineFilename(const std::string contentDisposition) {
-        return "injector2.exe";
+        static std::regex re("filename=\"([^\"]+)\"");
+        
+        std::smatch m;
+        if (!std::regex_search(contentDisposition, m, re)) {
+            return "injector_v0.0.0.exe";
+        }
+
+        return m[1].str();
     }
 
 public:
@@ -142,11 +149,6 @@ public:
 
             filesystem::path newFile = oldFile.parent_path() / determineFilename(response.header["content-disposition"]);
 
-            std::ifstream inf(oldFile, std::ios::binary);
-            std::stringstream buffer;
-            buffer << inf.rdbuf();
-            response.text = buffer.str();
-
             std::ofstream f(newFile, std::ios::binary);
             if (!f.is_open())
             {
@@ -166,7 +168,6 @@ public:
         }
         else
         {
-            qDebug() << response.text.c_str();
             errorMessage = "Failed to download new injector (got HTTP status code " + std::to_string(response.status_code) + ").";
             goto error;
         }
