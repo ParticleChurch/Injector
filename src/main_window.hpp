@@ -143,30 +143,19 @@ public:
 		return false;
 	}
 
-	void enable()
+	void setEnabled(bool enabled)
 	{
-		this->enabled = true;
+		((QPushButton*)this)->setEnabled(enabled);
+		this->enabled = enabled;
 		this->restyle();
 	}
 
-	void disable()
+	void setLoading(bool loading)
 	{
-		this->enabled = false;
-		this->restyle();
-	}
-
-	void startLoading()
-	{
-		this->loading = true;
-		this->movieContainer->setMovie(this->movie.get());
-		QPushButton::setText("");
-	}
-
-	void stopLoading()
-	{
-		this->loading = false;
-		this->movieContainer->setMovie(nullptr);
-		QPushButton::setText(this->text);
+		this->loading = loading;
+		this->movieContainer->setMovie(loading ? this->movie.get() : nullptr);
+		QPushButton::setText(loading ? "" : this->text);
+		this->setEnabled(!loading);
 	}
 };
 
@@ -227,6 +216,7 @@ public:
 	{
 		// version check
 		AutoUpdateWorker* t = new AutoUpdateWorker(this);
+		this->connect(t, &AutoUpdateWorker::resultReady, this, &MainWindow::onAutoUpdateResult);
 		this->connect(t, &AutoUpdateWorker::finished, t, &QObject::deleteLater);
 		t->start();
 
@@ -290,10 +280,13 @@ public:
 		this->playAuth->setFont(*this->OpenSans400);
 		this->playAnon->setFont(*this->OpenSans400);
 
+		// the buttons are loading until AutoUpdate finishes
+		this->playAnon->setLoading(true);
+		this->playAuth->setLoading(true);
+
 		this->loadLoginInfo();
 		this->connect(this->playAuth.get(), &QPushButton::clicked, this, &MainWindow::onLogin);
 
-		// fix placeholder garbage
 		this->setFocus();
 	}
 
@@ -388,18 +381,10 @@ private:
 signals:
 
 public slots:
-
-	void recalculatePlaceholders()
-	{
-		this->email->restyle();
-		this->password->restyle();
-	}
-
 	void onLogin()
 	{
-		this->playAnon->disable();
-		this->playAuth->disable();
-		this->playAuth->startLoading();
+		this->playAnon->setEnabled(false);
+		this->playAuth->setLoading(true);
 
 		this->saveLoginInfo();
 
@@ -411,9 +396,8 @@ public slots:
 
 	void onLoginResult(bool success, std::string error_or_sessionId, int statusCode_or_userId)
 	{
-		this->playAuth->stopLoading();
-		this->playAnon->enable();
-		this->playAuth->enable();
+		this->playAuth->setLoading(false);
+		this->playAnon->setEnabled(true);
 
 		if (!success)
 		{
@@ -433,5 +417,12 @@ public slots:
 
 			MessageBoxA(MB_OK, ("LOGGED IN AS USER " + std::to_string(userId)).c_str(), NULL, NULL);
 		}
+	}
+
+	void onAutoUpdateResult(bool updateRequired)
+	{
+		this->playAuth->setLoading(false);
+		this->playAnon->setLoading(false);
+		MessageBox((HWND)this->winId(), "Update Required", updateRequired ? "YEP" : "NOPE", MB_ICONINFORMATION | MB_OK);
 	}
 };

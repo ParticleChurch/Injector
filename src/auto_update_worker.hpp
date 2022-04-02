@@ -2,6 +2,7 @@
 #include "encryption.hpp"
 #include "http.hpp"
 #include <QtCore/QtCore>
+#include <QtWidgets/QWidget>
 
 #include <Windows.h>
 
@@ -11,19 +12,26 @@ class AutoUpdateWorker : public QThread
 {
     Q_OBJECT;
 
+    HWND parentHandle = NULL;
+
 public:
     using QThread::QThread;
+    AutoUpdateWorker(QWidget* p) : QThread(p)
+    {
+        this->parentHandle = (HWND)p->winId();
+    }
 
     void run() override
     {
         using namespace Encryption::Encoding;
 
         auto response = HTTP::get(
-            "injector/version",
+            "dist/injector/version",
             {
-                { "my_version", VERSION },
+                { "local_version", VERSION },
             }
         );
+        Sleep(5000);
 
         std::string errorMessage = "[An unknown error occurred]";
 
@@ -45,13 +53,12 @@ public:
                 goto error;
             }
 
-            bool updateRequired = body["update_required"];
-            if (!updateRequired) goto end;
-
-            MessageBox(NULL, "Update Required", "TODO", MB_ICONINFORMATION | MB_OK);
+            emit this->resultReady(body["update_required"]);
+            goto end;
         }
         else
         {
+            qDebug() << response.text.c_str();
             errorMessage = "Failed to check for updates (got HTTP status code " + std::to_string(response.status_code) + ").";
             goto error;
         }
@@ -61,7 +68,7 @@ public:
         errorMessage += "\n" \
             "The injector will not work if it isn't up-to-date.\n" \
             "Press OK to visit https://particle.church and re-download.";
-        switch (MessageBox(NULL, errorMessage.c_str(), "Update Failed", MB_ICONERROR | MB_OKCANCEL))
+        switch (MessageBox(this->parentHandle, errorMessage.c_str(), "Update Failed", MB_ICONERROR | MB_OKCANCEL))
         {
         default:
         case IDOK:
@@ -74,4 +81,7 @@ public:
 
     end:;
     }
+
+signals:
+    void resultReady(bool updateRequired);
 };
