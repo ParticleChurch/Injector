@@ -3,14 +3,14 @@
 #include <memory>
 #include <fstream>
 
-#include <QFontDatabase>
-#include <QFont>
-#include <QEvent>
+#include <QtGui/QFontDatabase>
+#include <QtGui/QFont>
+#include <QtCore/QEvent>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
-#include <QMovie>
+#include <QtGui/QMovie>
 
 #include "title_bar_theme.hpp"
 #include "encryption.hpp"
@@ -298,19 +298,19 @@ private:
 	{
 		{
 			int id = QFontDatabase::addApplicationFont(":/font/OpenSans/400.otf");
-			auto family = QFontDatabase::applicationFontFamilies(id).at(0);
+			QString family = QFontDatabase::applicationFontFamilies(id).at(0);
 			this->OpenSans400 = std::make_unique<QFont>(family);
 			this->OpenSans400->setStyleStrategy(QFont::PreferAntialias);
 		}
 		{
 			int id = QFontDatabase::addApplicationFont(":/font/OpenSans/600.otf");
-			auto family = QFontDatabase::applicationFontFamilies(id).at(0);
+			QString family = QFontDatabase::applicationFontFamilies(id).at(0);
 			this->OpenSans600 = std::make_unique<QFont>(family);
 			this->OpenSans600->setStyleStrategy(QFont::PreferAntialias);
 		}
 		{
 			int id = QFontDatabase::addApplicationFont(":/font/OpenSans/700.otf");
-			auto family = QFontDatabase::applicationFontFamilies(id).at(0);
+			QString family = QFontDatabase::applicationFontFamilies(id).at(0);
 			this->OpenSans700 = std::make_unique<QFont>(family);
 			this->OpenSans700->setStyleStrategy(QFont::PreferAntialias);
 		}
