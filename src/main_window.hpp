@@ -16,6 +16,7 @@
 #include "encryption.hpp"
 
 #include "login_worker.hpp"
+#include "auto_update_worker.hpp"
 
 #include "controlled_manual_mapper.hpp"
 
@@ -224,7 +225,10 @@ private:
 public:
 	explicit MainWindow(QWidget* parent = nullptr) : QWidget(parent)
 	{
-		ControlledManualMapper::function();
+		// version check
+		AutoUpdateWorker* t = new AutoUpdateWorker(this);
+		this->connect(t, &AutoUpdateWorker::finished, t, &QObject::deleteLater);
+		t->start();
 
 		/*
 			window styles
@@ -318,6 +322,8 @@ private:
 
 	void loadLoginInfo()
 	{
+		using namespace Encryption::Encoding;
+
 		std::string filepath = std::string(std::getenv("TEMP")) + "\\particle.church.login";
 		std::ifstream file(filepath, std::ios::binary | std::ios::ate);
 
@@ -338,8 +344,8 @@ private:
 			size_t comma = decrypted.find_first_of(',');
 			if (comma >= decrypted.size()) return;
 
-			std::string email = Encryption::unhex(decrypted.substr(0, comma));
-			std::string password = Encryption::unhex(decrypted.substr(comma + 1));
+			std::string email = Base16::decode(decrypted.substr(0, comma));
+			std::string password = Base16::decode(decrypted.substr(comma + 1));
 
 			this->email->setText(email.c_str());
 			this->password->setText(password.c_str());
@@ -355,7 +361,7 @@ private:
 
 	void saveLoginInfo()
 	{
-		using Encryption::Util::hex, Encryption::encrypt;
+		using namespace Encryption::Encoding;
 
 		std::string temp = std::getenv("TEMP");
 		std::ofstream file(temp + "\\particle.church.login", std::ios::binary);
@@ -365,7 +371,7 @@ private:
 		std::string email = this->email->text().toStdString();
 		std::string password = this->password->text().toStdString();
 
-		std::string encryptedData = encrypt(hex(email) + "," + hex(password));
+		std::string encryptedData = Encryption::encrypt(Base16::encode(email) + "," + Base16::encode(password));
 
 		file.write(encryptedData.data(), encryptedData.size());
 		file.close();

@@ -75,6 +75,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)external\ControlledManualMapper\include;C:\Qt\qt-6.2.3-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <PostBuildEvent>
       <Command>rmdir /Q /S $(SolutionDir)Release 2&gt; nul
@@ -93,6 +94,7 @@ rmdir /Q /S $(SolutionDir)x64 2&gt; nul</Command>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)external\ControlledManualMapper\include;C:\Qt\qt-6.2.3-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <PostBuildEvent>
       <Command>rmdir /Q /S $(SolutionDir)Release 2&gt; nul
@@ -139,7 +141,6 @@ rmdir /Q /S $(SolutionDir)x64 2&gt; nul</Command>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\auto_update_worker.hpp" />
-    <ClInclude Include="src\base64.hpp" />
     <ClInclude Include="src\console.hpp" />
     <ClInclude Include="src\encryption.hpp" />
     <ClInclude Include="src\http.hpp" />

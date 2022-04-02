@@ -9,7 +9,7 @@
 #include "console.hpp"
 
 namespace Encryption {
-    // CryptoPP has such a retarded interface
+    // CryptoPP has a TERRIBLE interface
     // this namespace is just for shortcuts to CryptoPP
     namespace CryptoCockAndBalls {
         inline std::string sha256(std::string data)
@@ -99,37 +99,105 @@ namespace Encryption {
             case 'F': case 'f': return 15;
             }
         }
-
-        // hex digest given binary data
-        inline std::string hex(std::string data)
-        {
-            std::string hex;
-            hex.reserve(data.size() * 2);
-
-            for (const char& byte : data)
-            {
-                hex += Util::BIN_TO_HEX_DIGIT(byte >> 4);
-                hex += Util::BIN_TO_HEX_DIGIT(byte & 0b1111);
-            }
-
-            return hex;
-        }
     }
 
-    // binary data given hex digest
-    inline std::string unhex(std::string hex)
-    {
-        std::string data;
-        data.reserve(hex.size() / 2);
+    namespace Encoding {
+        namespace Base64 {
+            constexpr char digits[] = {
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+            'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+            'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+            'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+            'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+            'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+            'w', 'x', 'y', 'z', '0', '1', '2', '3',
+            '4', '5', '6', '7', '8', '9', '+', '/',
+            };
 
-        for (size_t i = 0; i + 1 < hex.size(); i += 2)
-        {
-            const char& a = hex.at(i), b = hex.at(i + 1);
-            const char byte = (Util::HEX_DIGIT_TO_BIN(a) << 4) | Util::HEX_DIGIT_TO_BIN(b);
-            data += byte;
+            inline std::string encode(const std::string& data)
+            {
+                const size_t inputSize = data.length();
+                const size_t triplets = inputSize / 3;
+                const size_t remainingCharacters = inputSize % 3;
+
+                std::string output;
+                output.reserve(triplets * 4 + 4);
+
+                const char* ptr = data.data();
+                const char* lastTriplet = ptr + 3 * triplets;
+                while (ptr <= lastTriplet)
+                {
+                    const char& a = *ptr++, & b = *ptr++, & c = *ptr++;
+                    const char& A = a >> 2, B = (a & 0b11) | (b >> 4), C = (b & 0b1111) | (c >> 6), D = c & 0b111111;
+
+                    output += digits[A];
+                    output += digits[B];
+                    output += digits[C];
+                    output += digits[D];
+                }
+
+                switch (remainingCharacters)
+                {
+                default:
+                case 0:
+                    break;
+                case 1:
+                {
+                    const char& a = *ptr++;
+                    const char& A = a >> 2, B = a & 0b11;
+                    output += digits[A];
+                    output += digits[B];
+                    output += "==";
+                    break;
+                }
+                case 2:
+                {
+                    const char& a = *ptr++, & b = *ptr++;
+                    const char& A = a >> 2, B = (a & 0b11) | (b >> 4), C = (b & 0b1111);
+                    output += digits[A];
+                    output += digits[B];
+                    output += digits[C];
+                    output += '=';
+                }
+                }
+
+                return output;
+            }
+        
+            // TODO:
+            //inline std::string decode(const std::string& data)
         }
 
-        return data;
+        namespace Base16 {
+            inline std::string encode(const std::string& data)
+            {
+                std::string output;
+                output.reserve(data.size() * 2);
+
+                for (const char& byte : data)
+                {
+                    output += Util::BIN_TO_HEX_DIGIT(byte >> 4);
+                    output += Util::BIN_TO_HEX_DIGIT(byte & 0b1111);
+                }
+
+                return output;
+            }
+
+            inline std::string decode(const std::string& data)
+            {
+                std::string output;
+                output.reserve(data.size() / 2);
+
+                for (size_t i = 0; i + 1 < data.size(); i += 2)
+                {
+                    const char& a = data.at(i), b = data.at(i + 1);
+                    const char byte = (Util::HEX_DIGIT_TO_BIN(a) << 4) | Util::HEX_DIGIT_TO_BIN(b);
+                    output += byte;
+                }
+
+                return output;
+            }
+        }
     }
 
     // returns a hardware id that should be universally unique, and be constant across multiple calls in different sessions
