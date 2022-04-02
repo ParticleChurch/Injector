@@ -16,7 +16,7 @@
 #include "encryption.hpp"
 
 #include "login_worker.hpp"
-#include "auto_update_worker.hpp"
+#include "update_workers.hpp"
 
 #include "controlled_manual_mapper.hpp"
 
@@ -215,9 +215,9 @@ public:
 	explicit MainWindow(QWidget* parent = nullptr) : QWidget(parent)
 	{
 		// version check
-		AutoUpdateWorker* t = new AutoUpdateWorker(this);
-		this->connect(t, &AutoUpdateWorker::resultReady, this, &MainWindow::onAutoUpdateResult);
-		this->connect(t, &AutoUpdateWorker::finished, t, &QObject::deleteLater);
+		UpdateCheckWorker* t = new UpdateCheckWorker(this);
+		this->connect(t, &UpdateCheckWorker::resultReady, this, &MainWindow::onAutoUpdateResult);
+		this->connect(t, &UpdateCheckWorker::finished, t, &QObject::deleteLater);
 		t->start();
 
 		/*
@@ -286,8 +286,6 @@ public:
 
 		this->loadLoginInfo();
 		this->connect(this->playAuth.get(), &QPushButton::clicked, this, &MainWindow::onLogin);
-
-		this->setFocus();
 	}
 
 private:
@@ -421,8 +419,17 @@ public slots:
 
 	void onAutoUpdateResult(bool updateRequired)
 	{
-		this->playAuth->setLoading(false);
-		this->playAnon->setLoading(false);
-		MessageBox((HWND)this->winId(), "Update Required", updateRequired ? "YEP" : "NOPE", MB_ICONINFORMATION | MB_OK);
+		if (!updateRequired)
+		{
+			this->playAuth->setLoading(false);
+			this->playAnon->setLoading(false);
+		}
+		else
+		{
+			UpdateWorker* t = new UpdateWorker(this);
+			this->connect(t, &UpdateWorker::finished, t, &QObject::deleteLater);
+			t->start();
+			MessageBox((HWND)this->winId(), "Please wait while the particle.church injector is updated.", "Updating...", MB_ICONINFORMATION | MB_OK);
+		}
 	}
 };

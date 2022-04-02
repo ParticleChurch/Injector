@@ -63,7 +63,7 @@
     <QtMoc Include="src\login_worker.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\auto_update_worker.hpp">
+    <QtMoc Include="src\update_workers.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
