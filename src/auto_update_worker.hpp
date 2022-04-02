@@ -1,6 +1,6 @@
 #pragma once
-#include <QtCore>
 #include "http.hpp"
+#include <QtCore/QtCore>
 
 #include <Windows.h>
 
@@ -24,7 +24,7 @@ public:
 
         if (response.error)
         {
-            //MessageBox(NULL, "Hello", "Goodbye", MB_ICONERROR);
+            MessageBox(NULL, "Hello", "Goodbye", MB_ICONERROR);
         }
 
         if (response.status_code == 200)

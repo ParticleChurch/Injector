@@ -1,5 +1,5 @@
 #pragma once
-#include <QtCore>
+#include <QtCore/QtCore>
 #include "http.hpp"
 
 class LoginWorkerThread : public QThread
