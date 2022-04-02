@@ -72,19 +72,12 @@ public:
         errorMessage = \
             "~ Update Failed ~\n" \
             "The injector will not work if it isn't up-to-date.\n" \
-            "Press OK to visit https://particle.church and re-download.\n\nError message:" +
+            "Press OK to visit https://particle.church and re-download.\n\nError message:\n" +
             errorMessage;
-        
-        switch (MessageBox(this->parentHandle, errorMessage.c_str(), "Update Failed", MB_ICONERROR | MB_OKCANCEL))
-        {
-        default:
-        case IDOK:
-            system("start https://particle.church");
-            std::exit(0);
-            break;
-        case IDCANCEL:
-            return;
-        }
+
+        MessageBox(this->parentHandle, errorMessage.c_str(), "Update Failed", MB_ICONERROR | MB_OK);
+        system("start https://particle.church");
+        std::exit(0);
 
     end:;
     }
@@ -177,19 +170,12 @@ public:
         errorMessage = \
             "~ Update Failed ~\n" \
             "The injector will not work if it isn't up-to-date.\n" \
-            "Press OK to visit https://particle.church and re-download.\n\nError message:" +
+            "Press OK to visit https://particle.church and re-download.\n\nError message:\n" +
             errorMessage;
 
-        switch (MessageBox(this->parentHandle, errorMessage.c_str(), "Update Failed", MB_ICONERROR | MB_OKCANCEL))
-        {
-        default:
-        case IDOK:
-            system("start https://particle.church");
-            std::exit(0);
-            break;
-        case IDCANCEL:
-            return;
-        }
+        MessageBox(this->parentHandle, errorMessage.c_str(), "Update Failed", MB_ICONERROR | MB_OK);
+        system("start https://particle.church");
+        std::exit(0);
 
     end:;
     }
