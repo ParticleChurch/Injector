@@ -11,6 +11,7 @@ namespace filesystem = std::filesystem;
 #include <QtWidgets/QWidget>
 
 #include <Windows.h>
+#include <shellapi.h>
 
 #define VERSION "0.9.0"
 
@@ -54,7 +55,8 @@ public:
             {
                 errorMessage =
                     "Invalid API response. Please report this error to a developer. " +
-                    Base64::encode("`update_required` not found: " + response.text);
+                    Base64::encode("`update_required` is invalid: " + response.text);
+
                 goto error;
             }
 
@@ -76,7 +78,7 @@ public:
             errorMessage;
 
         MessageBox(this->parentHandle, errorMessage.c_str(), "Update Failed", MB_ICONERROR | MB_OK);
-        system("start https://particle.church");
+        ShellExecuteA(0, 0, "https://particle.church", 0, 0, SW_SHOW);
         std::exit(0);
 
     end:;
@@ -174,7 +176,7 @@ public:
             errorMessage;
 
         MessageBox(this->parentHandle, errorMessage.c_str(), "Update Failed", MB_ICONERROR | MB_OK);
-        system("start https://particle.church");
+        ShellExecuteA(0, 0, "https://particle.church", 0, 0, SW_SHOW);
         std::exit(0);
 
     end:;

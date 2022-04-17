@@ -66,6 +66,9 @@
     <QtMoc Include="src\update_workers.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\qt_loading_spinner.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <Font Include="resource\OpenSans\400.ttf">

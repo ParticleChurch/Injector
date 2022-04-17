@@ -18,6 +18,8 @@
 #include "login_worker.hpp"
 #include "update_workers.hpp"
 
+#include "qt_loading_spinner.hpp"
+
 #include "controlled_manual_mapper.hpp"
 
 class FocusWatcher : public QObject
@@ -76,38 +78,22 @@ Q_SIGNALS:
 
 class Button : public QPushButton {
 	QString text = "Click Me!";
-	std::unique_ptr<QMovie> movie;
-	std::unique_ptr<QLabel> movieContainer;
+	QLoadingSpinner* spinner;
 	bool enabled = true;
 	bool loading = false;
-
-	void resizeMovie()
-	{
-		const int w = this->width(), h = this->height();
-		const int sz = std::min(w, h) * 0.7;
-
-		this->movieContainer->setGeometry(0, 0, w, h);
-		this->movie->setScaledSize({ sz, sz });
-	}
 
 public:
 	Button(QWidget* parent = nullptr) : QPushButton(parent)
 	{
-
-		this->movieContainer = std::make_unique<QLabel>(this);
-		this->movieContainer->setAttribute(Qt::WA_TranslucentBackground);
-		this->movieContainer->setAlignment(Qt::AlignCenter);
-		this->movieContainer->setGeometry(0, 0, this->width(), this->height());
-
-		this->movie = std::make_unique<QMovie>(":/img/loading.gif");
-		this->resizeMovie();
-		this->movie->start();
+		this->spinner = new QLoadingSpinner(this, 0.5);
 
 		this->restyle();
 
 		this->connect(new HoverWatcher(this), &HoverWatcher::hoverChanged, this, &Button::restyle);
 
 		if (parent) parent->installEventFilter(this);
+
+		this->setLoading(false);
 	}
 
 	void restyle()
@@ -136,7 +122,7 @@ public:
 		switch (event->type())
 		{
 		case QEvent::Resize:
-			this->resizeMovie();
+			this->spinner->recenter();
 			break;
 		}
 
@@ -153,7 +139,10 @@ public:
 	void setLoading(bool loading)
 	{
 		this->loading = loading;
-		this->movieContainer->setMovie(loading ? this->movie.get() : nullptr);
+		
+		if (loading) this->spinner->show();
+		else this->spinner->hide();
+
 		QPushButton::setText(loading ? "" : this->text);
 		this->setEnabled(!loading);
 	}
@@ -173,19 +162,18 @@ public:
 	{
 		bool empty = this->text() == "";
 		bool focus = this->hasFocus();
+		bool invalid = this->invalid;
 
-		QString opacity = "1";
-		if (empty) opacity = focus ? "0" : "0.6";
-
-		QString border = this->invalid ? "2px solid rgb(166, 61, 61)" : "none";
-		QString padding = this->invalid ? "8px" : "10px";
+		QString textColor = empty ? "rgb(117, 117, 117)" : "rgb(235, 235, 235)";
+		QString border = focus ? "1px solid rgb(120, 120, 120)" : invalid ? "2px solid rgb(166, 61, 61)" : "none";
+		QString padding = focus ? "9px" : invalid ? "8px" : "10px";
 
 		this->setStyleSheet(
-			"background-color: rgb(26, 29, 32);"
+			"background-color: rgb(55, 57, 60);"
 			"border-radius: 5px; "
 			"padding: " + padding + ";"
 			"font-size: 16px;"
-			"color: rgba(255, 255, 255, " + opacity + ");"
+			"color: " + textColor + ";"
 			"border: " + border + ";"
 		);
 	}
