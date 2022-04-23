@@ -85,6 +85,8 @@ class Button : public QPushButton {
 public:
 	Button(QWidget* parent = nullptr) : QPushButton(parent)
 	{
+		this->setFocusPolicy(Qt::FocusPolicy::NoFocus);
+
 		this->spinner = new QLoadingSpinner(this, 0.5);
 
 		this->restyle();
@@ -139,7 +141,7 @@ public:
 	void setLoading(bool loading)
 	{
 		this->loading = loading;
-		
+
 		if (loading) this->spinner->show();
 		else this->spinner->hide();
 
@@ -375,6 +377,7 @@ public slots:
 		this->saveLoginInfo();
 
 		LoginWorkerThread* t = new LoginWorkerThread(this, this->email->text().toStdString(), this->password->text().toStdString());
+
 		this->connect(t, &LoginWorkerThread::resultReady, this, &MainWindow::onLoginResult);
 		this->connect(t, &LoginWorkerThread::finished, t, &QObject::deleteLater);
 		t->start();
