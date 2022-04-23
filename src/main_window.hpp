@@ -229,34 +229,45 @@ class Task : public QWidget {
 	QLabel* title;
 	QLabel* subtitle;
 	QWidget* icon;
+	QLoadingSpinner* spinnerIcon;
+
+public:
+	Task(QWidget* parent, QString title, QFont titleFont, QString subtitle, QFont subtitleFont): QWidget(parent) {
+		this->title = new H2(title, parent, titleFont);
+		this->subtitle = new H3(title, parent, subtitleFont);
+		this->icon = new QWidget(this);
+		this->spinnerIcon = new QLoadingSpinner(this->icon, 0.6f, 0.5f);
+
+		this->geometryChanged();
+
+		this->installEventFilter(this);
+	}
+
+	void geometryChanged() {
+		static int lastw, lasth, lastx, lasty;
+		int w = this->width(), h = this->height();
+		int x = this->x(), y = this->y();
+		int p = 5;
+
+		this->icon->setGeometry(0, 0, h, h); // no clue why tf this is relative but nothing else is
+		this->title->setGeometry(x + h + p, y, w - h - p, h * 0.6f);
+		this->subtitle->setGeometry(x + h + p, y + this->title->height(), w - h - p, h * 0.4f + 0.5f);
+		this->spinnerIcon->recenter();
+
+		this->repaint();
+	}
 
 	virtual bool eventFilter(QObject* obj, QEvent* event) override
 	{
 		switch (event->type())
 		{
 		case QEvent::Resize:
-			this->sizeChanged();
+		case QEvent::Move:
+			this->geometryChanged();
 			break;
 		}
 
 		return false;
-	}
-
-public:
-	Task(QWidget* parent, QString title, QFont titleFont, QString subtitle, QFont subtitleFont): QWidget(parent) {
-		this->title = new QLabel(title, parent);
-		this->subtitle = new QLabel(title, parent);
-		this->icon = new QWidget(this);
-
-		this->sizeChanged();
-	}
-
-	void sizeChanged() {
-		int w = this->width(), h = this->height();
-
-		this->icon->setGeometry(0, 0, h, h);
-		this->title->setGeometry(h, 0, w - h, h * 0.6f);
-		this->subtitle->setGeometry(h, this->title->height(), w - h, h * 0.4f + 0.5f);
 	}
 };
 
@@ -349,11 +360,40 @@ public:
 
 		this->tasks["wait_for_csgo"] = std::make_unique<Task>(
 			this,
-			"title", *this->OpenSans600,
-			"subtitle", *this->OpenSans400
+			"Waiting for CS:GO", *this->OpenSans600,
+			"step 1 subtitle", *this->OpenSans400
 		);
-		this->tasks["wait_for_csgo"]->setGeometry(24, 52, 292, 40);
-		this->tasks["wait_for_csgo"]->show();
+
+		this->tasks["dll_download"] = std::make_unique<Task>(
+			this,
+			"Updating DLL", *this->OpenSans600,
+			"step 2 subtitle", *this->OpenSans400
+		);
+
+		this->tasks["decrypt"] = std::make_unique<Task>(
+			this,
+			"Decrypting", *this->OpenSans600,
+			"step 3 subtitle", *this->OpenSans400
+		);
+
+		this->tasks["inject"] = std::make_unique<Task>(
+			this,
+			"Injecting", *this->OpenSans600,
+			"step 4 subtitle", *this->OpenSans400
+		);
+
+		this->tasks["start"] = std::make_unique<Task>(
+			this,
+			"Starting", *this->OpenSans600,
+			"step 4 subtitle", *this->OpenSans400
+		);
+
+		int h = 60;
+		for (const auto& key : { "wait_for_csgo", "dll_download", "decrypt", "inject", "start" }) {
+			const auto& task = this->tasks[key];
+			task->setGeometry(18, h, 292, 40);
+			h += 56;
+		}
 
 		// setup
 		this->shiftInjectionScreen();
@@ -367,19 +407,22 @@ private:
 			int id = QFontDatabase::addApplicationFont(":/font/OpenSans/400.otf");
 			QString family = QFontDatabase::applicationFontFamilies(id).at(0);
 			this->OpenSans400 = std::make_unique<QFont>(family);
-			this->OpenSans400->setStyleStrategy(QFont::PreferAntialias);
+			this->OpenSans400->setStyleStrategy(QFont::StyleStrategy(QFont::PreferAntialias | QFont::PreferQuality));
+			this->OpenSans400->setHintingPreference(QFont::HintingPreference::PreferNoHinting);
 		}
 		{
 			int id = QFontDatabase::addApplicationFont(":/font/OpenSans/600.otf");
 			QString family = QFontDatabase::applicationFontFamilies(id).at(0);
 			this->OpenSans600 = std::make_unique<QFont>(family);
-			this->OpenSans600->setStyleStrategy(QFont::PreferAntialias);
+			this->OpenSans600->setStyleStrategy(QFont::StyleStrategy(QFont::PreferAntialias | QFont::PreferQuality));
+			this->OpenSans600->setHintingPreference(QFont::HintingPreference::PreferNoHinting);
 		}
 		{
 			int id = QFontDatabase::addApplicationFont(":/font/OpenSans/700.otf");
 			QString family = QFontDatabase::applicationFontFamilies(id).at(0);
 			this->OpenSans700 = std::make_unique<QFont>(family);
-			this->OpenSans700->setStyleStrategy(QFont::PreferAntialias);
+			this->OpenSans600->setStyleStrategy(QFont::StyleStrategy(QFont::PreferAntialias | QFont::PreferQuality));
+			this->OpenSans700->setHintingPreference(QFont::HintingPreference::PreferNoHinting);
 		}
 	}
 
