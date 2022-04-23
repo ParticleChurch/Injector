@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <fstream>
+#include <vector>
+#include <map>
 
 #include <QtGui/QFontDatabase>
 #include <QtGui/QFont>
@@ -187,6 +189,77 @@ public:
 	}
 };
 
+class H1 : public QLabel {
+public:
+	H1(QString text, QWidget* parent = nullptr, QFont font = QFont()): QLabel(text, parent) {
+		this->setStyleSheet(
+			"font-size: 24px;"
+			"color: rgb(255, 255, 255);"
+			"background-color: rgba(0,0,0,0);"
+		);
+		this->setFont(font);
+	}
+};
+
+class H2 : public QLabel {
+public:
+	H2(QString text, QWidget* parent = nullptr, QFont font = QFont()) : QLabel(text, parent) {
+		this->setStyleSheet(
+			"font-size: 18px;"
+			"color: rgb(255, 255, 255);"
+			"background-color: rgba(0,0,0,0);"
+		);
+		this->setFont(font);
+	}
+};
+
+class H3 : public QLabel {
+public:
+	H3(QString text, QWidget* parent = nullptr, QFont font = QFont()) : QLabel(text, parent) {
+		this->setStyleSheet(
+			"font-size: 14px;"
+			"color: rgb(150, 150, 150);"
+			"background-color: rgba(0,0,0,0);"
+		);
+		this->setFont(font);
+	}
+};
+
+class Task : public QWidget {
+	QLabel* title;
+	QLabel* subtitle;
+	QWidget* icon;
+
+	virtual bool eventFilter(QObject* obj, QEvent* event) override
+	{
+		switch (event->type())
+		{
+		case QEvent::Resize:
+			this->sizeChanged();
+			break;
+		}
+
+		return false;
+	}
+
+public:
+	Task(QWidget* parent, QString title, QFont titleFont, QString subtitle, QFont subtitleFont): QWidget(parent) {
+		this->title = new QLabel(title, parent);
+		this->subtitle = new QLabel(title, parent);
+		this->icon = new QWidget(this);
+
+		this->sizeChanged();
+	}
+
+	void sizeChanged() {
+		int w = this->width(), h = this->height();
+
+		this->icon->setGeometry(0, 0, h, h);
+		this->title->setGeometry(h, 0, w - h, h * 0.6f);
+		this->subtitle->setGeometry(h, this->title->height(), w - h, h * 0.4f + 0.5f);
+	}
+};
+
 class MainWindow : public QWidget
 {
 	Q_OBJECT;
@@ -196,6 +269,11 @@ private:
 	std::unique_ptr<Input> password;
 	std::unique_ptr<Button> playAnon;
 	std::unique_ptr<Button> playAuth;
+	std::unique_ptr<H1> emailLabel;
+	std::unique_ptr<H1> passwordLabel;
+
+	std::unique_ptr<H1> welcomeLabel;
+	std::map<std::string, std::unique_ptr<Task>> tasks;
 
 	std::unique_ptr<QFont> OpenSans400;
 	std::unique_ptr<QFont> OpenSans600;
@@ -243,23 +321,10 @@ public:
 		this->password->setFont(*this->OpenSans600);
 		this->password->setEchoMode(QLineEdit::Password);
 
-		{
-			auto email = new QLabel("Email", this);
-			auto password = new QLabel("Password", this);
-
-			email->setStyleSheet(
-				"font-size: 24px;"
-				"color: white;"
-				"background-color: rgba(0,0,0,0);"
-			);
-			password->setStyleSheet(email->styleSheet());
-
-			email->setFont(*this->OpenSans700);
-			password->setFont(*this->OpenSans700);
-
-			email->setGeometry(24, 12, 292, 40);
-			password->setGeometry(24, 107, 292, 40);
-		}
+		this->emailLabel = std::make_unique<H1>("Email", this, *this->OpenSans700);
+		this->passwordLabel = std::make_unique<H1>("Password", this, *this->OpenSans700);
+		this->emailLabel->setGeometry(24, 12, 292, 40);
+		this->passwordLabel->setGeometry(24, 107, 292, 40);
 
 		this->playAuth->setText("Log In");
 		this->playAnon->setText("Play Anonymously");
@@ -276,6 +341,23 @@ public:
 
 		this->loadLoginInfo();
 		this->connect(this->playAuth.get(), &QPushButton::clicked, this, &MainWindow::onLogin);
+		this->connect(this->playAnon.get(), &QPushButton::clicked, this, &MainWindow::onPlayAnon);
+
+		// injection screen
+		this->welcomeLabel = std::make_unique<H1>("Welcome, Guest", this, *this->OpenSans700);
+		this->welcomeLabel->setGeometry(24, 12, 292, 40);
+
+		this->tasks["wait_for_csgo"] = std::make_unique<Task>(
+			this,
+			"title", *this->OpenSans600,
+			"subtitle", *this->OpenSans400
+		);
+		this->tasks["wait_for_csgo"]->setGeometry(24, 52, 292, 40);
+		this->tasks["wait_for_csgo"]->show();
+
+		// setup
+		this->shiftInjectionScreen();
+		this->transitionToLoadingScreen();
 	}
 
 private:
@@ -366,9 +448,71 @@ private:
 		QWidget::mousePressEvent(evt);
 	}
 
+	void transitionToLoadingScreen()
+	{
+		int duration = 1000;
+
+		std::vector<QWidget*> transition = {
+			this->email.get(),
+			this->password.get(),
+			this->playAuth.get(),
+			this->playAnon.get(),
+			this->emailLabel.get(),
+			this->passwordLabel.get(),
+			this->welcomeLabel.get(),
+		};
+		for (const auto& [k, v] : this->tasks) {
+			transition.push_back(v.get());
+		}
+
+		for (auto element : transition) {
+			QPropertyAnimation* a = new QPropertyAnimation(element, "geometry", this);
+			a->setEasingCurve(QEasingCurve::InOutQuad);
+			a->setDuration(duration);
+			a->setEndValue(element->geometry().adjusted(this->width(), 0, this->width(), 0));
+			a->start();
+		}
+	}
+
+	void shiftInjectionScreen()
+	{
+		std::vector<QWidget*> shift = {
+			this->welcomeLabel.get(),
+		};
+		for (const auto& [k, v] : this->tasks) {
+			shift.push_back(v.get());
+		}
+
+		for (auto element : shift) {
+			element->setGeometry(
+				element->geometry().adjusted(-this->width(), 0, -this->width(), 0)
+			);
+		}
+	}
+
+	void inject()
+	{
+		// disable all interactions on login page
+		this->playAnon->setLoading(false);
+		this->playAnon->setLoading(false);
+		this->playAnon->setEnabled(false);
+		this->playAnon->setEnabled(false);
+		this->email->setReadOnly(true);
+		this->password->setReadOnly(true);
+
+		// transition to injection page
+		this->transitionToLoadingScreen();
+	}
+
 signals:
 
 public slots:
+	void onPlayAnon()
+	{
+		this->welcomeLabel->setText("Welcome, Guest");
+		this->inject();
+	}
+
 	void onLogin()
 	{
 		this->playAnon->setEnabled(false);
@@ -404,7 +548,8 @@ public slots:
 			this->email->setInvalid(false);
 			this->password->setInvalid(false);
 
-			MessageBoxA(MB_OK, ("LOGGED IN AS USER " + std::to_string(userId)).c_str(), NULL, NULL);
+			this->welcomeLabel->setText(("Welcome, User " + std::to_string(userId)).c_str());
+			this->inject();
 		}
 	}
 
