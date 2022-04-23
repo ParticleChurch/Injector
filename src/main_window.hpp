@@ -397,7 +397,6 @@ public:
 
 		// setup
 		this->shiftInjectionScreen();
-		this->transitionToLoadingScreen();
 	}
 
 private:
