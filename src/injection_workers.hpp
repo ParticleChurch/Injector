@@ -74,12 +74,11 @@ public:
         emit status("Initializing CS:GO...");
         // TODO: wait for DLLs to be loaded
 
-        emit status("running `ready`: " + std::to_string(0));
-        emit ready("hello");
+        emit ready(123);
     }
 
 signals:
-    void ready(std::string x);
+    void ready(int x);
     void status(std::string status);
 };
 
@@ -185,7 +184,7 @@ public:
 
 public slots:
     void task0_status(std::string status) { this->statuses[0] = status; emit this->status(this->statuses); };
-    void task0_ready(std::string x) { this->statuses[0] = "Done!"; emit this->status(this->statuses); };
+    void task0_ready(int x) { this->statuses[0] = "Done!"; emit this->status(this->statuses); };
 
     void task1_status(std::string status) { this->statuses[1] = status; emit this->status(this->statuses); };
     void task1_ready(std::vector<char> data) { this->task2->start(); };
