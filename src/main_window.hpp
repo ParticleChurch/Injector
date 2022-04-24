@@ -24,6 +24,8 @@
 
 #include "controlled_manual_mapper.hpp"
 
+#include "injection_workers.hpp"
+
 class FocusWatcher : public QObject
 {
 	Q_OBJECT
@@ -234,7 +236,7 @@ class Task : public QWidget {
 public:
 	Task(QWidget* parent, QString title, QFont titleFont, QString subtitle, QFont subtitleFont): QWidget(parent) {
 		this->title = new H2(title, parent, titleFont);
-		this->subtitle = new H3(title, parent, subtitleFont);
+		this->subtitle = new H3(subtitle, parent, subtitleFont);
 		this->icon = new QWidget(this);
 		this->spinnerIcon = new QLoadingSpinner(this->icon, 0.6f, 0.5f);
 
@@ -268,6 +270,10 @@ public:
 		}
 
 		return false;
+	}
+
+	void setSubtitle(std::string subtitle) {
+		this->subtitle->setText(subtitle.c_str());
 	}
 };
 
@@ -544,11 +550,31 @@ private:
 
 		// transition to injection page
 		this->transitionToLoadingScreen();
+
+		// start injection thread
+		auto w = new InjectionWorker(this);
+		this->connect(w, &InjectionWorker::status, this, &MainWindow::onInjectionStatus);
+		this->connect(w, &InjectionWorker::ready, this, &MainWindow::onInjectionComplete);
+		this->connect(w, &InjectionWorker::finished, w, &QObject::deleteLater);
+		w->start();
 	}
 
 signals:
 
 public slots:
+	void onInjectionComplete() {
+		this->close();
+		std::exit(0);
+	}
+
+	void onInjectionStatus(std::vector<std::string> statuses) {
+		int i = 0;
+		for (const auto& key : { "wait_for_csgo", "dll_download", "decrypt", "inject", "start" }) {
+			const auto& task = this->tasks[key];
+			task->setSubtitle(statuses[i++]);
+		}
+	}
+
 	void onPlayAnon()
 	{
 		this->welcomeLabel->setText("Welcome, Guest");

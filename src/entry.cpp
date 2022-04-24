@@ -9,6 +9,9 @@ namespace filesystem = std::filesystem;
 
 int main(int argc, char** argv)
 {
+	// get csgo running if it isn't already
+	//system("start steam://run/730");
+
 	if (argc > 1)
 	{
 		try {
