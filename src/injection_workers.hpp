@@ -74,13 +74,8 @@ public:
         emit status("Initializing CS:GO...");
         // TODO: wait for DLLs to be loaded
 
-        int i = 0;
-        while (true) {
-            Sleep(1000);
-            i++;
-            emit status("running `ready`: " + std::to_string(i));
-            emit ready("hello");
-        }
+        emit status("running `ready`: " + std::to_string(0));
+        emit ready("hello");
     }
 
 signals:
