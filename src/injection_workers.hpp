@@ -81,7 +81,6 @@ public:
         emit status("Initializing CS:GO...");
         // TODO: wait for DLLs to be loaded
 
-        emit status("Done!");
         emit complete({ pid, proc });
     }
 
@@ -103,7 +102,6 @@ public:
 
         Sleep(2000);
 
-        emit status("Done!");
         emit complete({});
     }
 
@@ -125,7 +123,6 @@ public:
 
         Sleep(2000);
 
-        emit status("Done!", "Done!");
         emit complete(nullptr);
     }
 
@@ -147,7 +144,6 @@ public:
 
         Sleep(1000);
 
-        emit status("Done!");
         emit complete();
     }
 
@@ -156,14 +152,21 @@ signals:
     void complete();
 };
 
+struct TaskStatus {
+    std::string description = "/";
+    bool complete = false;
+};
+
 class InjectionWorker : public QThread {
     Q_OBJECT;
-    std::vector<std::string> statuses = { "/", "/", "/", "/", "/" };
+    std::vector<TaskStatus> statuses = { {}, {}, {}, {}, {} };
 
     OpenCSGOWorker* task0;
     DLLDownloadWorker* task1;
     DLLInjectionWorker* task2;
     EntryPointExecutionWorker* task3;
+
+    bool done = false;
 
 public:
     InjectionWorker(QObject* parent = nullptr) : QThread(parent) {
@@ -191,22 +194,31 @@ public:
 
     void run() override {
         this->task0->start();
+
+        while (!this->done) {
+            emit this->status(this->statuses);
+            Sleep(1000 / 144);
+        }
+        emit this->status(this->statuses);
+        Sleep(3000);
+
+        emit complete();
     }
 
 public slots:
-    void task0_status(std::string status) { this->statuses[0] = status; emit this->status(this->statuses); };
-    void task0_complete(Process x) { this->task1->start(); };
+    void task0_status(std::string status) { this->statuses[0].description = status; };
+    void task0_complete(Process x) { this->statuses[0].complete = true; this->task1->start(); };
 
-    void task1_status(std::string status) { this->statuses[1] = status; emit this->status(this->statuses); };
-    void task1_complete(std::vector<char> data) { this->task2->start(); };
+    void task1_status(std::string status) { this->statuses[1].description = status; };
+    void task1_complete(std::vector<char> data) { this->statuses[1].complete = true; this->task2->start(); };
 
-    void task2_status(std::string status1, std::string status2) { this->statuses[2] = status1; this->statuses[3] = status2; emit this->status(this->statuses); };
-    void task2_complete(void* remoteAddress) { this->task3->start(); };
+    void task2_status(std::string status1, std::string status2) { this->statuses[2].description = status1; this->statuses[3].description = status2; };
+    void task2_complete(void* remoteAddress) { this->statuses[2].complete = true; this->statuses[3].complete = true; this->task3->start(); };
 
-    void task3_status(std::string status) { this->statuses[4] = status; emit this->status(this->statuses); };
-    void task3_complete() { emit complete(); };
+    void task3_status(std::string status) { this->statuses[4].description = status;  };
+    void task3_complete() { this->statuses[4].complete = true; this->done = true; };
 
 signals:
-    void status(std::vector<std::string> statuses);
+    void status(std::vector<TaskStatus> statuses);
     void complete();
 };

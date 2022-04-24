@@ -557,8 +557,6 @@ private:
 		this->connect(w, &InjectionWorker::complete, this, &MainWindow::onInjectionComplete);
 		this->connect(w, &InjectionWorker::complete, this, &QObject::deleteLater);
 		w->start();
-
-		// w is never deleted, so this is a memory leak - but who tf cares tbh
 	}
 
 signals:
@@ -569,11 +567,12 @@ public slots:
 		std::exit(0);
 	}
 
-	void onInjectionStatus(std::vector<std::string> statuses) {
+	void onInjectionStatus(std::vector<TaskStatus> statuses) {
 		int i = 0;
 		for (const auto& key : { "wait_for_csgo", "dll_download", "decrypt", "inject", "start" }) {
 			const auto& task = this->tasks[key];
-			task->setSubtitle(statuses[i++]);
+			const auto& status = statuses[i++];
+			task->setSubtitle(status.complete ? "Done!" : status.description);
 		}
 	}
 
