@@ -12,6 +12,13 @@
 #include <string>
 #include <vector>
 
+// for some reason, you can't pass a HANDLE through a QT signal
+// so we have to wrap it like this...
+struct Process {
+    DWORD id;
+    HANDLE handle;
+};
+
 class OpenCSGOWorker : public QThread
 {
     Q_OBJECT;
@@ -74,11 +81,11 @@ public:
         emit status("Initializing CS:GO...");
         // TODO: wait for DLLs to be loaded
 
-        emit ready(123);
+        emit ready({ pid, proc });
     }
 
 signals:
-    void ready(int x);
+    void ready(Process x);
     void status(std::string status);
 };
 
@@ -184,7 +191,7 @@ public:
 
 public slots:
     void task0_status(std::string status) { this->statuses[0] = status; emit this->status(this->statuses); };
-    void task0_ready(int x) { this->statuses[0] = "Done!"; emit this->status(this->statuses); };
+    void task0_ready(Process x) { this->statuses[0] = "Done!"; emit this->status(this->statuses); };
 
     void task1_status(std::string status) { this->statuses[1] = status; emit this->status(this->statuses); };
     void task1_ready(std::vector<char> data) { this->task2->start(); };
