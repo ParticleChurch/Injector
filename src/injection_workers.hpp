@@ -8,7 +8,7 @@
 
 #include <Windows.h>
 
-#include "process_finder.hpp"
+#include <psapi.h>
 #include <string>
 #include <vector>
 
@@ -16,17 +16,52 @@ class OpenCSGOWorker : public QThread
 {
     Q_OBJECT;
 
+    bool processLikelyCSGO(DWORD pid) {
+        HANDLE proc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+        if (!proc) return false;
+
+        char szExeName[MAX_PATH + 1];
+        GetModuleFileNameEx(proc, 0, szExeName, MAX_PATH);
+
+        std::string exeName(szExeName);
+        std::string csgo = "csgo.exe";
+
+        if (exeName.length() < csgo.length()) return false;
+        if (exeName.substr(exeName.size() - csgo.size()) != csgo) return false;
+
+        return true;
+    }
+
+    DWORD findCSGOPID() {
+        DWORD PIDs[2048];
+        DWORD bytesUsed;
+
+        if (!EnumProcesses(PIDs, sizeof(PIDs), &bytesUsed))
+        {
+            return 0;
+        }
+
+        int processCount = bytesUsed / sizeof(DWORD);
+        for (int i = 0; i < processCount; i++)
+        {
+            DWORD& pid = PIDs[i];
+            if (pid && processLikelyCSGO(pid))
+                return pid;
+        }
+
+        return 0;
+    }
+
 public:
     using QThread::QThread;
 
     void run() override
     {
         emit status("Finding Process ID...");
-
-        DWORD pid = ProcessFinder::findCSGOPID();
+        DWORD pid = this->findCSGOPID();
         while (!pid) {
             Sleep(1000);
-            pid = ProcessFinder::findCSGOPID();
+            pid = this->findCSGOPID();
         }
 
         emit status("Hooking CS:GO...");
@@ -39,11 +74,17 @@ public:
         emit status("Initializing CS:GO...");
         // TODO: wait for DLLs to be loaded
 
-        emit ready(proc);
+        int i = 0;
+        while (true) {
+            Sleep(1000);
+            i++;
+            emit status("running `ready`: " + std::to_string(i));
+            emit statuus("hello");
+        }
     }
 
 signals:
-    void ready(HANDLE handle);
+    void statuus(std::string x);
     void status(std::string status);
 };
 
@@ -124,34 +165,32 @@ public:
 
         this->task0 = new OpenCSGOWorker(parent);
         this->connect(this->task0, &OpenCSGOWorker::status, this, &InjectionWorker::task0_status);
-        this->connect(this->task0, &OpenCSGOWorker::ready, this, &InjectionWorker::task0_ready);
-        this->connect(this->task0, &OpenCSGOWorker::finished, this->task0, &QObject::deleteLater);
+        this->connect(this->task0, &OpenCSGOWorker::statuus, this, &InjectionWorker::task0_statuus);
+        //this->connect(this->task0, &OpenCSGOWorker::finished, this->task0, &QObject::deleteLater);
 
         this->task1 = new DLLDownloadWorker(parent);
         this->connect(this->task1, &DLLDownloadWorker::status, this, &InjectionWorker::task1_status);
         this->connect(this->task1, &DLLDownloadWorker::ready, this, &InjectionWorker::task1_ready);
-        this->connect(this->task1, &DLLDownloadWorker::finished, this->task1, &QObject::deleteLater);
-
+        //this->connect(this->task1, &DLLDownloadWorker::finished, this->task1, &QObject::deleteLater);
+        
         this->task2 = new DLLInjectionWorker(parent);
         this->connect(this->task2, &DLLInjectionWorker::status, this, &InjectionWorker::task2_status);
         this->connect(this->task2, &DLLInjectionWorker::ready, this, &InjectionWorker::task2_ready);
-        this->connect(this->task2, &DLLInjectionWorker::finished, this->task2, &QObject::deleteLater);
-
+        //this->connect(this->task2, &DLLInjectionWorker::finished, this->task2, &QObject::deleteLater);
+        
         this->task3 = new EntryPointExecutionWorker(parent);
         this->connect(this->task3, &EntryPointExecutionWorker::status, this, &InjectionWorker::task3_status);
         this->connect(this->task3, &EntryPointExecutionWorker::ready, this, &InjectionWorker::task3_ready);
-        this->connect(this->task3, &EntryPointExecutionWorker::finished, this->task3, &QObject::deleteLater);
-
-        this->task0->start();
+        //this->connect(this->task3, &EntryPointExecutionWorker::finished, this->task3, &QObject::deleteLater);
     }
 
     void run() override {
-
+        this->task0->start();
     }
 
 public slots:
     void task0_status(std::string status) { this->statuses[0] = status; emit this->status(this->statuses); };
-    void task0_ready(HANDLE handle) { this->task1->start(); };
+    void task0_statuus(std::string x) { this->statuses[0] = "Done!"; emit this->status(this->statuses); };
 
     void task1_status(std::string status) { this->statuses[1] = status; emit this->status(this->statuses); };
     void task1_ready(std::vector<char> data) { this->task2->start(); };

@@ -149,7 +149,6 @@ rmdir /Q /S $(SolutionDir)x64 2&gt; nul</Command>
     <QtMoc Include="src\login_worker.hpp" />
     <ClInclude Include="src\json.hpp" />
     <QtMoc Include="src\qt_loading_spinner.hpp" />
-    <ClInclude Include="src\process_finder.hpp" />
     <ClInclude Include="src\title_bar_theme.hpp" />
     <ClInclude Include="src\utils.hpp" />
     <QtMoc Include="src\main_window.hpp" />

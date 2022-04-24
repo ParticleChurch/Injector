@@ -55,9 +55,6 @@
     <ClInclude Include="src\http.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\process_finder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\main_window.hpp">

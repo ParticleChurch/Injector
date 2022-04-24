@@ -555,8 +555,9 @@ private:
 		auto w = new InjectionWorker(this);
 		this->connect(w, &InjectionWorker::status, this, &MainWindow::onInjectionStatus);
 		this->connect(w, &InjectionWorker::ready, this, &MainWindow::onInjectionComplete);
-		this->connect(w, &InjectionWorker::finished, w, &QObject::deleteLater);
 		w->start();
+
+		// w is never deleted, so this is a memory leak - but who tf cares tbh
 	}
 
 signals:
