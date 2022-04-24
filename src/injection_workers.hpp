@@ -22,16 +22,12 @@ public:
     void run() override
     {
         emit status("Finding Process ID...");
-        emit status("BBBB...");
-        emit status("C...");
 
         DWORD pid = ProcessFinder::findCSGOPID();
-        emit status("D...");
         while (!pid) {
             Sleep(1000);
             pid = ProcessFinder::findCSGOPID();
         }
-        emit status("E...");
 
         emit status("Hooking CS:GO...");
         HANDLE proc = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
