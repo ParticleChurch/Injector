@@ -79,12 +79,12 @@ public:
             Sleep(1000);
             i++;
             emit status("running `ready`: " + std::to_string(i));
-            emit statuus("hello");
+            emit ready("hello");
         }
     }
 
 signals:
-    void statuus(std::string x);
+    void ready(std::string x);
     void status(std::string status);
 };
 
@@ -165,7 +165,7 @@ public:
 
         this->task0 = new OpenCSGOWorker(parent);
         this->connect(this->task0, &OpenCSGOWorker::status, this, &InjectionWorker::task0_status);
-        this->connect(this->task0, &OpenCSGOWorker::statuus, this, &InjectionWorker::task0_statuus);
+        this->connect(this->task0, &OpenCSGOWorker::ready, this, &InjectionWorker::task0_ready);
         //this->connect(this->task0, &OpenCSGOWorker::finished, this->task0, &QObject::deleteLater);
 
         this->task1 = new DLLDownloadWorker(parent);
@@ -190,7 +190,7 @@ public:
 
 public slots:
     void task0_status(std::string status) { this->statuses[0] = status; emit this->status(this->statuses); };
-    void task0_statuus(std::string x) { this->statuses[0] = "Done!"; emit this->status(this->statuses); };
+    void task0_ready(std::string x) { this->statuses[0] = "Done!"; emit this->status(this->statuses); };
 
     void task1_status(std::string status) { this->statuses[1] = status; emit this->status(this->statuses); };
     void task1_ready(std::vector<char> data) { this->task2->start(); };
