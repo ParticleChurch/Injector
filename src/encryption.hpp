@@ -8,8 +8,6 @@
 
 #include "os.hpp"
 
-#include <QtWidgets/QApplication>
-
 namespace Encryption {
     // CryptoPP has a TERRIBLE interface
     // this namespace is just for shortcuts to CryptoPP
@@ -206,7 +204,6 @@ namespace Encryption {
     inline std::string getHardwareUUID()
     {
         std::string output = OS::system("wmic csproduct get UUID");
-        MessageBoxA(NULL, output.c_str(), "encryption key", MB_OK);
         output.erase(std::remove_if(output.begin(), output.end(), [](char c) { return !std::isalnum(c); }), output.end());
         return output;
     }

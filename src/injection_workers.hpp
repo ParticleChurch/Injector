@@ -17,13 +17,8 @@
 struct Process {
     DWORD id;
     HANDLE handle;
-};
 
-class OpenCSGOWorker : public QThread
-{
-    Q_OBJECT;
-
-    bool processLikelyCSGO(DWORD pid) {
+    inline static bool processLikelyCSGO(DWORD pid) {
         HANDLE proc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
         if (!proc) return false;
 
@@ -39,7 +34,7 @@ class OpenCSGOWorker : public QThread
         return true;
     }
 
-    DWORD findCSGOPID() {
+    inline static DWORD findCSGOPID() {
         DWORD PIDs[2048];
         DWORD bytesUsed;
 
@@ -58,6 +53,11 @@ class OpenCSGOWorker : public QThread
 
         return 0;
     }
+};
+
+class OpenCSGOWorker : public QThread
+{
+    Q_OBJECT;
 
 public:
     using QThread::QThread;
@@ -65,10 +65,10 @@ public:
     void run() override
     {
         emit status("Finding Process ID...");
-        DWORD pid = this->findCSGOPID();
+        DWORD pid = Process::findCSGOPID();
         while (!pid) {
             Sleep(1000);
-            pid = this->findCSGOPID();
+            pid = Process::findCSGOPID();
         }
 
         emit status("Hooking CS:GO...");

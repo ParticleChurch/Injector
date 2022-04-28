@@ -1,16 +1,13 @@
 #include <QtWidgets/QApplication>
 
+#include "injection_workers.hpp"
 #include "main_window.hpp"
 #include "os.hpp"
 
 int main(int argc, char** argv)
 {
 	// get csgo running if it isn't already
-	int exitCode = 0;
-	std::string output = OS::system("start steam://run/730", &exitCode);
-	qDebug("================ RAN THE COMMAND!!! ===================");
-	qDebug() << "EXIT CODE: " << exitCode;
-	qDebug() << "OUTPUT: " << output.c_str();
+	if (!Process::findCSGOPID()) OS::system("start steam://run/730");
 
 	if (argc > 1)
 	{
