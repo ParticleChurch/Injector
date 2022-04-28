@@ -4,7 +4,4 @@
         <file>OpenSans/600.otf</file>
         <file>OpenSans/700.otf</file>
     </qresource>
-    <qresource prefix="/img">
-        <file>loading.gif</file>
-    </qresource>
 </RCC>

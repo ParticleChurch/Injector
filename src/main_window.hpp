@@ -276,11 +276,11 @@ public:
 		
 		if (status.complete) {
 			this->setSubtitle("Done!");
-			this->spinnerIcon->hide();
+			this->spinnerIcon->setCheckmark(true);
 		}
 		else {
 			this->setSubtitle(status.description);
-			this->spinnerIcon->show();
+			this->spinnerIcon->setCheckmark(false);
 		}
 	}
 

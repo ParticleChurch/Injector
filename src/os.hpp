@@ -10,6 +10,9 @@ namespace OS {
 
     inline std::string system(std::string cmd, int* returnCode = nullptr)
     {
+        // we will spawn a new cmd.exe to ensure that no window appears
+        cmd = "cmd.exe /c " + cmd;
+
         // declare vars
         SECURITY_ATTRIBUTES securityAttributes;
         PROCESS_INFORMATION processInfo;
@@ -44,7 +47,7 @@ namespace OS {
             cmd.data(),
             nullptr,
             nullptr,
-            TRUE,
+            true,
             CREATE_NEW_CONSOLE,
             nullptr,
             nullptr,
@@ -56,8 +59,8 @@ namespace OS {
             CloseHandle(hPipeRead);
             CloseHandle(hPipeWrite);
 
-            if (returnCode) *returnCode = -1;
-            return "";
+            if (returnCode) *returnCode = GetLastError();
+            return "Error: CreateProcessA falsy return. Error Code: " + std::to_string(GetLastError());
         }
 
         std::string output = "";
@@ -82,8 +85,10 @@ namespace OS {
             }
         }
 
-        if (returnCode && !GetExitCodeProcess(processInfo.hProcess, (DWORD*)&returnCode))
-            *returnCode = -1;
+        if (returnCode && !GetExitCodeProcess(processInfo.hProcess, (DWORD*)&returnCode)) {
+            *returnCode = GetLastError();
+            return "Error: GetExitCodeProcess falsy return. Error Code: " + std::to_string(*returnCode);
+        }
 
         CloseHandle(processInfo.hProcess);
         CloseHandle(processInfo.hThread);

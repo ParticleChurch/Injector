@@ -20,6 +20,7 @@ private:
     Timestamp lastRotationAt;
     double rotation = 0.0; // radians
     int drawAreaSize;
+    bool checkmark = false;
 
 public:
     QLoadingSpinner(QWidget* parent, double scale = 0.5, double speed = 1.0, QColor color = QColor(255, 255, 255)): QWidget(parent) {
@@ -52,6 +53,19 @@ public:
         );
     }
 
+    void setCheckmark(bool value) {
+        if (value == this->checkmark) return;
+
+        this->checkmark = value;
+        if (this->checkmark) {
+            this->timer->stop();
+            this->repaint();
+        }
+        else {
+            this->repaint();
+            this->timer->start();
+        }
+    }
 
 private slots:
     void rotate() {
@@ -99,13 +113,7 @@ protected:
         return degrees(radians) * 16.0 + 0.5; // +0.5 for rounding to int
     }
 
-    void paintEvent(QPaintEvent* paintEvent) {
-        this->recenter();
-
-        QPainter painter(this);
-        painter.fillRect(this->rect(), Qt::transparent);
-        painter.setRenderHint(QPainter::Antialiasing, true);
-
+    void paintSpinner(QPainter& painter) {
         painter.setPen(QPen(this->color, 2.5));
         painter.drawArc(
             this->rectangle(-1, -1, 1, 1),
@@ -117,5 +125,27 @@ protected:
             this->angle(this->rotation + 3.141592653589793),
             this->angle(1.5707963267948966)
         );
+    }
+
+    void paintCheckmark(QPainter& painter) {
+        painter.setPen(QPen(this->color, 2.5));
+
+        const QPointF a = this->point(-0.85, -0.1), b = this->point(-0.15, 0.75), c = this->point(0.85, -0.6);
+        painter.drawLine(a, b);
+        painter.drawLine(b, c);
+    }
+
+    void paintEvent(QPaintEvent* paintEvent) {
+        this->recenter();
+        QPainter painter(this);
+        painter.fillRect(this->rect(), Qt::transparent);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+
+        if (this->checkmark) {
+            this->paintCheckmark(painter);
+        }
+        else {
+            this->paintSpinner(painter);
+        }
     }
 };

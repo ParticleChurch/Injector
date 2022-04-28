@@ -13,7 +13,7 @@ namespace filesystem = std::filesystem;
 #include <Windows.h>
 #include <shellapi.h>
 
-#define VERSION "0.9.0"
+#define VERSION "0.9.1"
 
 class UpdateCheckWorker : public QThread
 {
