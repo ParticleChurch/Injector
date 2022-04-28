@@ -646,7 +646,7 @@ public slots:
 			UpdateWorker* t = new UpdateWorker(this);
 			this->connect(t, &UpdateWorker::finished, t, &QObject::deleteLater);
 			t->start();
-			MessageBox((HWND)this->winId(), "Please wait while the particle.church injector is updated.", "Updating...", MB_ICONINFORMATION | MB_OK);
+			MessageBox((HWND)this->winId(), "Please wait while the particle.church injector is updating.\nThis won't take more than a minute.", "Updating...", MB_ICONINFORMATION | MB_OK);
 		}
 	}
 };
