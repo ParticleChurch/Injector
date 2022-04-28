@@ -206,8 +206,8 @@ namespace Encryption {
     inline std::string getHardwareUUID()
     {
         std::string output = OS::system("wmic csproduct get UUID");
+        MessageBoxA(NULL, output.c_str(), "encryption key", MB_OK);
         output.erase(std::remove_if(output.begin(), output.end(), [](char c) { return !std::isalnum(c); }), output.end());
-        qDebug() << "===== USING UUID: " << output.c_str();
         return output;
     }
 
