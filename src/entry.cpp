@@ -1,16 +1,12 @@
 #include <QtWidgets/QApplication>
+
 #include "main_window.hpp"
-
-#include <filesystem>
-namespace filesystem = std::filesystem;
-
-#include <Windows.h>
-
+#include "os.hpp"
 
 int main(int argc, char** argv)
 {
 	// get csgo running if it isn't already
-	//system("start steam://run/730");
+	OS::system("start steam://run/730");
 
 	if (argc > 1)
 	{
@@ -18,8 +14,8 @@ int main(int argc, char** argv)
 			// give some time for that process to exit
 			Sleep(2000);
 
-			filesystem::path p = argv[1];
-			filesystem::remove(p);
+			OS::filesystem::path p = argv[1];
+			OS::filesystem::remove(p);
 		}
 		catch (...) {
 			// if it doesn't work, then honestly who cares

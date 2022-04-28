@@ -29,9 +29,6 @@
     <ClCompile Include="src\entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\console.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\injector.hpp">
@@ -46,7 +43,7 @@
     <ClInclude Include="src\encryption.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\console.hpp">
+    <ClInclude Include="src\os.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\json.hpp">

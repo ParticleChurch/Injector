@@ -272,6 +272,18 @@ public:
 		return false;
 	}
 
+	void setStatus(const TaskStatus& status) {
+		
+		if (status.complete) {
+			this->setSubtitle("Done!");
+			this->spinnerIcon->hide();
+		}
+		else {
+			this->setSubtitle(status.description);
+			this->spinnerIcon->show();
+		}
+	}
+
 	void setSubtitle(std::string subtitle) {
 		this->subtitle->setText(subtitle.c_str());
 	}
@@ -572,7 +584,7 @@ public slots:
 		for (const auto& key : { "wait_for_csgo", "dll_download", "decrypt", "inject", "start" }) {
 			const auto& task = this->tasks[key];
 			const auto& status = statuses[i++];
-			task->setSubtitle(status.complete ? "Done!" : status.description);
+			task->setStatus(status);
 		}
 	}
 

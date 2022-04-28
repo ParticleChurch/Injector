@@ -155,8 +155,7 @@ public:
 
             f.close();
 
-            std::string command = "start /B /MIN \"\" \"" + newFile.string() + "\" \"" + oldFile.string() + "\"";
-            system(command.c_str());
+            OS::system("start /B /MIN \"\" \"" + newFile.string() + "\" \"" + oldFile.string() + "\"");
             std::exit(0);
 
             goto end;

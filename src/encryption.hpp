@@ -6,7 +6,7 @@
 #include "cryptopp/sha.h"
 #include "cryptopp/filters.h"
 
-#include "console.hpp"
+#include "os.hpp"
 
 namespace Encryption {
     // CryptoPP has a TERRIBLE interface
@@ -203,7 +203,7 @@ namespace Encryption {
     // returns a hardware id that should be universally unique, and be constant across multiple calls in different sessions
     inline std::string getHardwareUUID()
     {
-        std::string output = exec("wmic csproduct get UUID");
+        std::string output = OS::system("wmic csproduct get UUID");
         output.erase(std::remove_if(output.begin(), output.end(), [](char c) { return !std::isalnum(c); }), output.end());
         return output;
     }
